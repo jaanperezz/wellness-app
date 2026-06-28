@@ -618,6 +618,9 @@ html, body {
     <div id="r4" class="ex-row" onclick="openEx(4)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083818_5cca953f-d31f-4191-b606-0907353e2b98_min.webp" alt="Palatal Sweep"><div class="einfo"><div class="ename">Palatal Sweep</div><div class="emeta">10 pases × 3 · Mañana</div></div><span id="a4" class="earr">›</span></div>
     <div id="r5" class="ex-row" onclick="openEx(5)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083820_abc1ffac-ac32-414e-83ec-48b5d32ae22d_min.webp" alt="Tongue Press"><div class="einfo"><div class="ename">Tongue Press</div><div class="emeta">60 s × 3 series · Mañana</div></div><span id="a5" class="earr">›</span></div>
     <div id="r6" class="ex-row" onclick="openEx(6)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083823_f85d345b-1b53-4779-affe-36a9a6e6c4c0_min.webp" alt="Asimetría facial"><div class="einfo"><div class="ename">Asimetría facial</div><div class="emeta">60 s c/lado · 1×/día</div></div><span id="a6" class="earr">›</span></div>
+    <div id="r7" class="ex-row" onclick="openEx(7)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110208_83425943-0f71-4c9c-acbf-fe989cb67f49_min.webp" alt="Masticación unilateral"><div class="einfo"><div class="ename">Masticación unilateral</div><div class="emeta">5 min c/lado · 1×/día</div></div><span id="a7" class="earr">›</span></div>
+    <div id="r8" class="ex-row" onclick="openEx(8)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110211_dc71c76e-3df4-444f-b687-cf9323315022_min.webp" alt="Estiramiento ECM"><div class="einfo"><div class="ename">Estiramiento ECM</div><div class="emeta">45 s c/lado × 3 · 1×/día</div></div><span id="a8" class="earr">›</span></div>
+    <div id="r9" class="ex-row" onclick="openEx(9)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110213_7b5b7eff-84d0-46ec-91a3-0b19519ee2b8_min.webp" alt="Activación masetero"><div class="einfo"><div class="ename">Activación masetero</div><div class="emeta">10 reps × 3 c/lado · 1×/día</div></div><span id="a9" class="earr">›</span></div>
   </div>
 
   <!-- NUTRICIÓN -->
@@ -769,7 +772,19 @@ const RUTINA = [
   {name:"Asimetría facial",freq:24,tag:"Simetría · Fascia",sets:2,reps:null,timed:true,duration:60,
    img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083823_f85d345b-1b53-4779-affe-36a9a6e6c4c0_min.webp",
    desc:"Corrige asimetría mandibular y cervical combinando presión lingual lateral con rotación cervical opuesta.",
-   steps:["Sentado, postura recta","Empuja la lengua hacia la mejilla DERECHA con la máxima fuerza","Simultáneamente gira la cabeza hacia la IZQUIERDA · mantén 60 s","Alterna: lengua a la izquierda + cabeza a la derecha · 60 s","1 × al día cada lado"]}
+   steps:["Sentado, postura recta","Empuja la lengua hacia la mejilla DERECHA con la máxima fuerza","Simultáneamente gira la cabeza hacia la IZQUIERDA · mantén 60 s","Alterna: lengua a la izquierda + cabeza a la derecha · 60 s","1 × al día cada lado"]},
+  {name:"Masticación unilateral",freq:24,tag:"Masetero · Simetría",sets:1,reps:null,timed:true,duration:300,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110208_83425943-0f71-4c9c-acbf-fe989cb67f49_min.webp",
+   desc:"Desarrolla el masetero del lado más débil para equilibrar el volumen mandibular. Tu lado izquierdo necesita más trabajo.",
+   steps:["Usa chicle duro (Falim o similar) o frutos secos duros","Mastica SOLO con el lado IZQUIERDO durante 5 minutos","Descansa 1 min · luego 5 min con el lado DERECHO","El lado izquierdo debe sentir más fatiga — es normal","Hazlo a diario · resultados visibles en 8-12 semanas"]},
+  {name:"Estiramiento ECM",freq:24,tag:"Cervical · Simetría",sets:3,reps:null,timed:true,duration:45,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110211_dc71c76e-3df4-444f-b687-cf9323315022_min.webp",
+   desc:"Estira el esternocleidomastoideo (ECM) del lado más tenso. La tensión cervical unilateral es una causa frecuente de asimetría facial visible.",
+   steps:["Sentado, espalda recta","Inclina la oreja derecha hacia el hombro derecho","Con la mano derecha, aplica suave tracción sobre la cabeza","Siente el estiramiento en el lado IZQUIERDO del cuello","Mantén 45 s · cambia de lado · 3 series cada uno","Prioriza el lado donde sientas más tensión"]},
+  {name:"Activación masetero",freq:24,tag:"Mandíbula · Simetría",sets:3,reps:"10 c/lado",timed:false,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_110213_7b5b7eff-84d0-46ec-91a3-0b19519ee2b8_min.webp",
+   desc:"Activa el masetero de forma aislada con resistencia manual. Más preciso que masticar para equilibrar ambos lados.",
+   steps:["Coloca el puño cerrado contra la mejilla IZQUIERDA","Aprieta los dientes empujando la mandíbula contra el puño","Mantén 3 segundos · suelta · repite 10 veces","Cambia al lado DERECHO · 10 reps","3 series totales · siente qué lado se fatiga antes","El lado que aguanta menos es el que necesita más trabajo"]}
 ];
 
 const MEALS = [
