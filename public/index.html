@@ -553,6 +553,53 @@ html, body {
 .dtask-info { flex: 1; min-width: 0; }
 .dtask-name { font-size: 14px; color: var(--tp); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dtask-freq { font-size: 11px; color: var(--tm); margin-top: 1px; }
+/* ── Food photo analyzer ── */
+.photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: var(--tp); color: var(--s0); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 12px; }
+.photo-btn:active { opacity: .85; }
+.photo-btn svg { flex-shrink: 0; }
+.food-result { background: var(--s1); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; }
+.food-result-header { font-size: 12px; font-weight: 500; color: var(--tm); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
+.food-item-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--bd); font-size: 14px; color: var(--tp); }
+.food-item-row:last-child { border-bottom: none; }
+.food-item-name { font-weight: 400; }
+.food-item-macros { font-size: 11px; color: var(--tm); }
+.food-total-row { display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bds); }
+.food-total-cell { flex: 1; text-align: center; }
+.food-total-val { font-size: 16px; font-weight: 500; color: var(--tp); }
+.food-total-lbl { font-size: 10px; color: var(--tm); margin-top: 2px; }
+.food-actions { display: flex; gap: 8px; margin-top: 10px; }
+.food-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+.btn-confirm { background: var(--fill-acc); color: #fff; }
+.btn-cancel { background: var(--bd); color: var(--tp); }
+.photo-log-entry { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+.photo-log-entry:last-child { border-bottom: none; }
+.photo-log-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.photo-log-info { flex: 1; min-width: 0; }
+.photo-log-title { font-size: 13px; font-weight: 500; color: var(--tp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.photo-log-macros { font-size: 11px; color: var(--tm); margin-top: 2px; }
+.photo-log-time { font-size: 11px; color: var(--tm); flex-shrink: 0; }
+.photo-loading { text-align: center; padding: 24px; color: var(--tm); font-size: 14px; }
+.photo-loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid var(--bd); border-top-color: var(--fill-acc); border-radius: 50%; animation: spin .8s linear infinite; margin-left: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* ── Weekly report modal ── */
+.report-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: flex; align-items: flex-end; }
+.report-sheet { background: var(--s0); border-radius: 20px 20px 0 0; width: 100%; max-height: 88vh; overflow-y: auto; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+.report-handle { width: 40px; height: 4px; background: var(--bd); border-radius: 2px; margin: 0 auto 16px; }
+.report-title { font-size: 18px; font-weight: 600; color: var(--tp); margin-bottom: 4px; }
+.report-subtitle { font-size: 13px; color: var(--tm); margin-bottom: 20px; }
+.report-day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bd); }
+.report-day-row:last-child { border-bottom: none; }
+.report-day-lbl { font-size: 12px; color: var(--tm); width: 28px; flex-shrink: 0; }
+.report-day-bar-wrap { flex: 1; height: 6px; background: var(--bd); border-radius: 3px; overflow: hidden; }
+.report-day-bar { height: 100%; border-radius: 3px; transition: width .4s; }
+.report-day-kcal { font-size: 12px; color: var(--tp); width: 50px; text-align: right; flex-shrink: 0; }
+.report-assessment { background: var(--s1); border-radius: var(--radius); padding: 14px; margin-top: 16px; font-size: 13px; color: var(--tp); line-height: 1.6; }
+.report-assessment-title { font-weight: 600; color: var(--tp); margin-bottom: 6px; font-size: 14px; }
+.report-stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--bd); font-size: 13px; }
+.report-stat-row:last-child { border-bottom: none; }
+.report-stat-lbl { color: var(--tm); }
+.report-stat-val { font-weight: 500; color: var(--tp); }
+.report-close { width: 100%; padding: 14px; background: var(--s1); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500; color: var(--tp); cursor: pointer; margin-top: 16px; }
 .daily-complete-banner { background: var(--bg-suc); color: var(--t-suc); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; font-weight: 500; text-align: center; margin: 0 16px; }
 </style>
 </head>
@@ -671,11 +718,37 @@ html, body {
       </div>
     </div>
 
-    <div class="sec">Comidas</div>
+    <div class="sec">Análisis por foto</div>
+    <div style="padding:0 16px">
+      <input type="file" id="food-input" accept="image/*" style="display:none">
+      <button class="photo-btn" onclick="document.getElementById('food-input').click()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Analizar comida
+      </button>
+      <div id="food-analyzing" style="display:none" class="photo-loading">Analizando imagen</div>
+      <div id="food-result" style="display:none"></div>
+      <div id="photo-log-list"></div>
+      <button onclick="showWeeklyReport()" style="width:100%;padding:11px;background:var(--s1);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;margin-bottom:4px">Ver informe semanal →</button>
+    </div>
+
+    <div class="sec">Plan base</div>
     <div class="card-inner" id="meals-list"></div>
 
     <div class="sec">Suplementos</div>
     <div class="card-inner" id="supps-list"></div>
+  </div>
+
+  <!-- Report modal -->
+  <div id="report-overlay" class="report-overlay" style="display:none" onclick="if(event.target===this)closeReport()">
+    <div class="report-sheet">
+      <div class="report-handle"></div>
+      <div class="report-title">Informe semanal</div>
+      <div class="report-subtitle" id="report-subtitle"></div>
+      <div id="report-days"></div>
+      <div id="report-stats"></div>
+      <div id="report-assessment" class="report-assessment"></div>
+      <button class="report-close" onclick="closeReport()">Cerrar</button>
+    </div>
   </div>
 
   <!-- ENTRENO -->
@@ -1208,6 +1281,263 @@ function urlBase64ToUint8Array(b64) {
 }
 
 initPush();
+
+// ── Food photo analyzer ──────────────────────────────────────
+function photoLogKey(d){ return 'photo_log_'+d.toDateString(); }
+function getPhotoLog(d){ try{ return JSON.parse(localStorage.getItem(photoLogKey(d))||'[]'); }catch{ return []; } }
+function savePhotoLog(d,log){ localStorage.setItem(photoLogKey(d), JSON.stringify(log)); }
+
+function photoTotalsToday(){
+  const log = getPhotoLog(new Date());
+  return log.reduce((acc,e)=>({
+    kcal: acc.kcal+(e.total.kcal||0),
+    protein_g: acc.protein_g+(e.total.protein_g||0),
+    carbs_g: acc.carbs_g+(e.total.carbs_g||0),
+    fat_g: acc.fat_g+(e.total.fat_g||0)
+  }), {kcal:0,protein_g:0,carbs_g:0,fat_g:0});
+}
+
+function renderPhotoLog(){
+  const log = getPhotoLog(new Date());
+  const el = document.getElementById('photo-log-list');
+  if(!el) return;
+  if(!log.length){ el.innerHTML=''; return; }
+  el.innerHTML = '<div class="card" style="margin-bottom:12px;padding:0"><div style="padding:12px 12px 4px;font-size:12px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.04em">Registrado hoy</div>'
+    + log.map(e=>`
+      <div class="photo-log-entry" style="padding:10px 12px">
+        <img class="photo-log-thumb" src="${e.thumb}" alt="comida">
+        <div class="photo-log-info">
+          <div class="photo-log-title">${e.foods.map(f=>f.name).join(', ')}</div>
+          <div class="photo-log-macros">${e.total.kcal} kcal · ${e.total.protein_g}g P · ${e.total.carbs_g}g C · ${e.total.fat_g}g G</div>
+        </div>
+        <div class="photo-log-time">${e.time}</div>
+      </div>`).join('')
+    + '</div>';
+}
+
+function resizeImage(file, maxPx, quality){
+  return new Promise(resolve=>{
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const scale = Math.min(1, maxPx/Math.max(img.width,img.height));
+        const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        const c = document.createElement('canvas');
+        c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg', quality));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('food-input').addEventListener('change', async function(){
+  const file = this.files[0];
+  if(!file) return;
+  this.value='';
+
+  const analyzing = document.getElementById('food-analyzing');
+  const resultEl  = document.getElementById('food-result');
+  analyzing.style.display='block';
+  resultEl.style.display='none';
+  resultEl.innerHTML='';
+
+  // Resize: 800px for sending, 120px for thumbnail
+  const [dataUrl, thumb] = await Promise.all([
+    resizeImage(file, 800, 0.85),
+    resizeImage(file, 120, 0.7)
+  ]);
+
+  const base64 = dataUrl.split(',')[1];
+  const mimeType = 'image/jpeg';
+
+  let result;
+  try {
+    const resp = await fetch('/api/analyze-food', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({image: base64, mimeType})
+    });
+    result = await resp.json();
+  } catch(e) {
+    analyzing.style.display='none';
+    resultEl.style.display='block';
+    resultEl.innerHTML='<div style="color:var(--t-war);font-size:13px;padding:12px">Error al analizar la imagen. Inténtalo de nuevo.</div>';
+    return;
+  }
+
+  analyzing.style.display='none';
+
+  if(result.error==='no_food'){
+    resultEl.style.display='block';
+    resultEl.innerHTML='<div style="color:var(--tm);font-size:13px;padding:12px">No se ha detectado comida en la imagen.</div>';
+    return;
+  }
+
+  // Build result card
+  const foods = result.foods||[];
+  const total = result.total||{kcal:0,protein_g:0,carbs_g:0,fat_g:0};
+
+  resultEl.style.display='block';
+  resultEl.innerHTML=`
+    <div class="food-result">
+      <div class="food-result-header">Detectado</div>
+      ${foods.map(f=>`
+        <div class="food-item-row">
+          <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:400">${f.amount}</span></span>
+          <span class="food-item-macros">${f.kcal} kcal</span>
+        </div>`).join('')}
+      <div class="food-total-row">
+        <div class="food-total-cell"><div class="food-total-val">${total.kcal}</div><div class="food-total-lbl">kcal</div></div>
+        <div class="food-total-cell"><div class="food-total-val" style="color:#639922">${total.protein_g}g</div><div class="food-total-lbl">proteína</div></div>
+        <div class="food-total-cell"><div class="food-total-val" style="color:#185fa5">${total.carbs_g}g</div><div class="food-total-lbl">carbos</div></div>
+        <div class="food-total-cell"><div class="food-total-val" style="color:#ba7517">${total.fat_g}g</div><div class="food-total-lbl">grasas</div></div>
+      </div>
+      <div class="food-actions">
+        <button class="btn-confirm" onclick="confirmFood(${JSON.stringify(JSON.stringify({foods,total,thumb}))})">Añadir</button>
+        <button class="btn-cancel" onclick="document.getElementById('food-result').style.display='none'">Cancelar</button>
+      </div>
+    </div>`;
+});
+
+function confirmFood(jsonStr){
+  const {foods,total,thumb} = JSON.parse(jsonStr);
+  const now = new Date();
+  const time = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const log = getPhotoLog(now);
+  log.push({foods,total,thumb,time});
+  savePhotoLog(now, log);
+  document.getElementById('food-result').style.display='none';
+  document.getElementById('food-result').innerHTML='';
+  renderPhotoLog();
+  updateMacros();
+}
+
+// ── Weekly report ────────────────────────────────────────────
+function showWeeklyReport(){
+  const overlay = document.getElementById('report-overlay');
+  overlay.style.display='flex';
+
+  const TARGETS = {kcal:2700, protein_g:170, carbs_g:335, fat_g:75};
+  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const today = new Date();
+
+  // Collect 7 days of data
+  const weekData = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(today); d.setDate(today.getDate()-i);
+    const photoLog = getPhotoLog(d);
+    const photoTotals = photoLog.reduce((a,e)=>({
+      kcal:a.kcal+e.total.kcal, protein_g:a.protein_g+e.total.protein_g,
+      carbs_g:a.carbs_g+e.total.carbs_g, fat_g:a.fat_g+e.total.fat_g
+    }),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
+
+    // Add meal plan if checked that day
+    const mealTk = 'meal_'+d.toDateString();
+    // For simplicity count photo log data only (meal plan doesn't store per-date)
+    weekData.push({ label:days[d.getDay()], isToday:i===0, ...photoTotals, hasData:photoLog.length>0 });
+  }
+
+  // Subtitle
+  const from = new Date(today); from.setDate(today.getDate()-6);
+  document.getElementById('report-subtitle').textContent =
+    from.toLocaleDateString('es-ES',{day:'numeric',month:'short'})+' – '+
+    today.toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+
+  // Days bar chart
+  const maxKcal = Math.max(...weekData.map(d=>d.kcal), TARGETS.kcal);
+  document.getElementById('report-days').innerHTML = weekData.map(d=>{
+    const pct = maxKcal>0 ? Math.round(d.kcal/maxKcal*100) : 0;
+    const color = !d.hasData?'var(--bd)':d.kcal>=TARGETS.kcal*0.85&&d.kcal<=TARGETS.kcal*1.1?'#639922':'#378add';
+    return `<div class="report-day-row">
+      <div class="report-day-lbl">${d.label}</div>
+      <div class="report-day-bar-wrap"><div class="report-day-bar" style="width:${pct}%;background:${color}"></div></div>
+      <div class="report-day-kcal">${d.hasData?d.kcal+' kcal':'—'}</div>
+    </div>`;
+  }).join('');
+
+  // Stats
+  const tracked = weekData.filter(d=>d.hasData);
+  if(tracked.length){
+    const avg = k => Math.round(tracked.reduce((s,d)=>s+d[k],0)/tracked.length);
+    const avgKcal=avg('kcal'), avgP=avg('protein_g'), avgC=avg('carbs_g'), avgF=avg('fat_g');
+    document.getElementById('report-stats').innerHTML = `
+      <div class="card" style="margin-top:16px;padding:0">
+        <div style="padding:12px 12px 4px;font-size:12px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.04em">Media diaria (${tracked.length} días registrados)</div>
+        <div style="padding:0 12px 8px">
+          <div class="report-stat-row"><span class="report-stat-lbl">Calorías</span><span class="report-stat-val ${avgKcal<TARGETS.kcal*0.85?'style="color:#ba7517"':''}">${avgKcal} / ${TARGETS.kcal} kcal</span></div>
+          <div class="report-stat-row"><span class="report-stat-lbl">Proteína</span><span class="report-stat-val">${avgP} / ${TARGETS.protein_g}g</span></div>
+          <div class="report-stat-row"><span class="report-stat-lbl">Carbohidratos</span><span class="report-stat-val">${avgC} / ${TARGETS.carbs_g}g</span></div>
+          <div class="report-stat-row"><span class="report-stat-lbl">Grasas</span><span class="report-stat-val">${avgF} / ${TARGETS.fat_g}g</span></div>
+        </div>
+      </div>`;
+
+    // Assessment
+    const calDiff = avgKcal - TARGETS.kcal;
+    const protOk  = avgP >= TARGETS.protein_g * 0.9;
+    let assessment = '';
+
+    if(tracked.length < 3){
+      assessment = `Solo hay ${tracked.length} día${tracked.length>1?'s':''} registrado${tracked.length>1?'s':''}. Sigue añadiendo fotos para obtener un informe más completo.`;
+    } else {
+      // Muscle gain assessment
+      const massNote = calDiff >= 0
+        ? `✅ Superávit calórico de +${calDiff} kcal de media. Bien orientado para ganar masa.`
+        : `⚠️ Déficit de ${Math.abs(calDiff)} kcal de media. Difícil ganar masa magra en déficit sostenido.`;
+
+      const protNote = protOk
+        ? `✅ Proteína en rango (${avgP}g). El músculo tiene sustrato para crecer.`
+        : `⚠️ Proteína baja (${avgP}g vs ${TARGETS.protein_g}g objetivo). Prioritario subirla — es el limitante principal para ganar masa.`;
+
+      // Fat loss note
+      const fatNote = calDiff > 300
+        ? `ℹ️ El superávit es alto (+${calDiff} kcal). Ganarás masa pero también algo de grasa. Ideal mantenerlo en +200-300 kcal para un bulk limpio.`
+        : calDiff >= 0
+        ? `✅ Superávit controlado. Ratio ideal para ganar masa magra sin exceso de grasa.`
+        : `ℹ️ En déficit calórico puedes perder grasa corporal, pero el crecimiento muscular será mínimo. Decide si priorizar bulk o cut.`;
+
+      assessment = `<div class="report-assessment-title">Masa muscular</div>${massNote}<br><br>${protNote}<br><br><div class="report-assessment-title" style="margin-top:4px">Composición corporal</div>${fatNote}`;
+    }
+
+    document.getElementById('report-assessment').innerHTML = assessment;
+  } else {
+    document.getElementById('report-stats').innerHTML='';
+    document.getElementById('report-assessment').innerHTML='Aún no hay datos fotográficos esta semana. Fotografía tus comidas para que el informe sea útil.';
+  }
+}
+
+function closeReport(){
+  document.getElementById('report-overlay').style.display='none';
+}
+
+// ── Patch updateMacros to include photo log ──────────────────
+const _origUpdateMacros = updateMacros;
+updateMacros = function(){
+  _origUpdateMacros();
+  // Add photo totals on top of meal-plan macros
+  const pt = photoTotalsToday();
+  if(!pt.kcal) return;
+  const CIRC=226;
+  const GOAL={kcal:2700,p:170,c:335,f:75};
+  // Read current kcal from SVG text, add photo totals
+  const curKcalEl = document.getElementById('kcal-txt');
+  const mealKcal = parseInt(curKcalEl?.textContent||'0')||0;
+  const totalKcal = mealKcal + pt.kcal;
+  if(curKcalEl) curKcalEl.textContent = totalKcal;
+  // Update calorie ring on home tab too
+  const ringKcal = document.getElementById('ring-kcal-txt');
+  if(ringKcal) ringKcal.textContent = totalKcal;
+  const ringEl = document.getElementById('ring-kcal');
+  if(ringEl) ringEl.style.strokeDashoffset = 176*(1-Math.min(totalKcal/2700,1));
+};
+
+// Init on load
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderPhotoLog();
+});
 </script>
 </body>
 </html>
