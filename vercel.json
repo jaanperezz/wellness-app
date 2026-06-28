@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "framework": null,
+  "functions": {
+    "api/*.js": { "runtime": "nodejs20.x" }
+  },
+  "crons": [
+    { "path": "/api/notify", "schedule": "0 6 * * *" },
+    { "path": "/api/notify", "schedule": "0 8 * * *" },
+    { "path": "/api/notify", "schedule": "0 14 * * *" },
+    { "path": "/api/notify", "schedule": "0 18 * * *" },
+    { "path": "/api/notify", "schedule": "0 20 * * *" }
+  ]
+}

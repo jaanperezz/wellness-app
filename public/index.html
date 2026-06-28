@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wellness">
+<meta name="theme-color" content="#f5f4f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a18" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>Wellness</title>
+<style>
+:root {
+  --s0: #f5f4f0;
+  --s1: #eeedea;
+  --s2: #ffffff;
+  --tp: #1a1a18;
+  --ts: #5a5a56;
+  --tm: #9a9a94;
+  --bd: rgba(0,0,0,0.09);
+  --bds: rgba(0,0,0,0.16);
+  --bg-acc: #e6f1fb;
+  --t-acc: #185fa5;
+  --bg-suc: #eaf3de;
+  --t-suc: #3b6d11;
+  --bg-war: #faeeda;
+  --t-war: #854f0b;
+  --fill-acc: #378add;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --s0: #1a1a18;
+    --s1: #242422;
+    --s2: #2e2e2c;
+    --tp: #f0efeb;
+    --ts: #a0a09a;
+    --tm: #686864;
+    --bd: rgba(255,255,255,0.09);
+    --bds: rgba(255,255,255,0.16);
+    --bg-acc: #0c3a6a;
+    --t-acc: #7ab8f0;
+    --bg-suc: #1a3a0a;
+    --t-suc: #8dc45a;
+    --bg-war: #3a2a08;
+    --t-war: #e8b060;
+    --fill-acc: #378add;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--s0);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  color: var(--tp);
+  -webkit-font-smoothing: antialiased;
+}
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: 100dvh;
+  background: var(--s0);
+  padding-top: env(safe-area-inset-top);
+}
+
+/* STATUS BAR */
+.sb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 6px;
+  font-size: 12px;
+  color: var(--tm);
+  flex-shrink: 0;
+}
+.sb-title { font-size: 13px; font-weight: 600; color: var(--tp); }
+
+/* TABS */
+.tabs {
+  display: flex;
+  border-bottom: 0.5px solid var(--bd);
+  background: var(--s0);
+  flex-shrink: 0;
+}
+.tab {
+  flex: 1;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--tm);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tab.active { color: var(--tp); border-bottom-color: var(--tp); font-weight: 500; }
+
+/* SCROLL */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.hidden { display: none !important; }
+
+/* TYPOGRAPHY */
+.sec {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--tm);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin: 14px 0 8px;
+}
+.sec:first-child { margin-top: 2px; }
+
+/* CARDS */
+.card {
+  background: var(--s2);
+  border: 0.5px solid var(--bd);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.card-inner {
+  background: var(--s2);
+  border: 0.5px solid var(--bd);
+  border-radius: var(--radius);
+  padding: 4px 14px;
+  margin-bottom: 10px;
+}
+
+/* EXERCISE ROWS */
+.ex-row {
+  background: var(--s2);
+  border: 0.5px solid var(--bd);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform .1s, opacity .15s;
+  -webkit-user-select: none;
+}
+.ex-row:active { transform: scale(.98); }
+.ex-row.locked { opacity: .45; pointer-events: none; }
+.ethumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--s1);
+}
+.einfo { flex: 1; min-width: 0; }
+.ename {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tp);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.emeta {
+  font-size: 11px;
+  color: var(--tm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.earr { color: var(--tm); font-size: 16px; flex-shrink: 0; }
+.done-arr { color: var(--t-suc); font-size: 14px; flex-shrink: 0; }
+
+/* HOME RINGS */
+.rings-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  margin-bottom: 6px;
+}
+.ring-item { text-align: center; }
+.ring-label { font-size: 10px; color: var(--tm); margin-top: 4px; }
+
+/* WATER DOTS */
+.agua-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.agua-dots { display: flex; gap: 5px; align-items: center; }
+.agua-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background .15s;
+  -webkit-user-select: none;
+}
+
+/* PENDING LIST */
+.pending-empty {
+  font-size: 13px;
+  color: var(--tm);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* MACRO SECTION */
+.macro-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.macro-nums { flex: 1; min-width: 0; }
+.macro-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.macro-label { font-size: 11px; font-weight: 500; }
+.macro-val { font-size: 11px; color: var(--tp); flex-shrink: 0; margin-left: 4px; }
+.macro-bar {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--bd);
+  overflow: hidden;
+  margin-bottom: 9px;
+}
+.macro-fill { height: 100%; border-radius: 99px; transition: width .3s; }
+
+/* MEAL ROWS */
+.meal-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--bd);
+  cursor: pointer;
+  -webkit-user-select: none;
+}
+.meal-row:last-child { border-bottom: none; }
+.mcb {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 0.5px solid var(--bds);
+  background: var(--s1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  transition: all .15s;
+}
+.mcb.on { background: var(--tp); border-color: var(--tp); color: var(--s2); }
+.meal-info { flex: 1; min-width: 0; }
+.meal-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tp);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meal-sub {
+  font-size: 11px;
+  color: var(--tm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.meal-kcal { font-size: 12px; color: var(--ts); font-weight: 500; flex-shrink: 0; margin-left: 4px; }
+
+/* SUPPLEMENTS */
+.supp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--bd);
+  cursor: pointer;
+  -webkit-user-select: none;
+}
+.supp-row:last-child { border-bottom: none; }
+.scb {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 0.5px solid var(--bds);
+  background: var(--s1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  transition: all .15s;
+}
+.scb.on { background: var(--tp); border-color: var(--tp); color: var(--s2); }
+.supp-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tp);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.supp-dose { font-size: 10px; color: var(--tm); margin-top: 1px; }
+
+/* PILLS */
+.pill {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-weight: 500;
+  background: var(--bg-acc);
+  color: var(--t-acc);
+  margin-bottom: 10px;
+}
+
+/* ENTRENO */
+.week-row { display: flex; gap: 4px; margin-top: 8px; }
+.day-col { flex: 1; text-align: center; }
+.day-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  margin: 0 auto 3px;
+}
+.day-num { font-size: 10px; color: var(--tm); }
+.entreno-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--bd);
+  min-height: 44px;
+}
+.entreno-row:last-child { border-bottom: none; }
+.eicon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.erow-info { flex: 1; min-width: 0; }
+.erow-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tp);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.erow-meta { font-size: 11px; color: var(--tm); margin-top: 1px; }
+.warn-box {
+  background: var(--bg-war);
+  border: 0.5px solid rgba(133,79,11,.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--t-war);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.calent-list {
+  font-size: 13px;
+  color: var(--ts);
+  line-height: 2;
+}
+
+/* OVERLAY */
+.ov {
+  position: fixed;
+  inset: 0;
+  background: var(--s0);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+}
+.ov.open { display: flex; }
+.ov-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 0.5px solid var(--bd);
+  flex-shrink: 0;
+}
+.ov-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--tp);
+  font-size: 20px;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 28px;
+}
+.ov-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tp);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ov-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+.ov-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  background: var(--s1);
+  display: block;
+}
+.sets-grid {
+  background: var(--s1);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 14px;
+}
+.sg-col { text-align: center; }
+.sg-val { font-size: 20px; font-weight: 500; color: var(--tp); }
+.sg-lbl { font-size: 10px; color: var(--tm); margin-top: 2px; }
+.ov-desc {
+  font-size: 13px;
+  color: var(--ts);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+.ov-steps { list-style: none; margin-bottom: 16px; }
+.ov-steps li {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 0.5px solid var(--bd);
+  font-size: 13px;
+  color: var(--ts);
+  line-height: 1.5;
+}
+.ov-steps li:last-child { border-bottom: none; }
+.ov-steps li .n { color: var(--tm); min-width: 18px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+/* TIMER */
+.timer-card {
+  background: var(--s1);
+  border-radius: var(--radius);
+  padding: 18px 16px 14px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.timer-num { font-size: 40px; font-weight: 300; color: var(--tp); letter-spacing: -1px; margin: 8px 0 4px; }
+.timer-serie { font-size: 12px; color: var(--tm); margin-bottom: 14px; }
+.timer-btns { display: flex; gap: 8px; }
+.tbtn {
+  flex: 1;
+  padding: 10px 6px;
+  border-radius: 8px;
+  border: 0.5px solid var(--bds);
+  background: var(--s2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--tp);
+  font-family: -apple-system, sans-serif;
+  transition: transform .1s;
+}
+.tbtn:active { transform: scale(.96); }
+.tbtn.primary { background: var(--tp); color: var(--s2); border-color: transparent; }
+
+/* DONE BUTTON */
+.done-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--tp);
+  color: var(--s2);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: -apple-system, sans-serif;
+  transition: transform .1s;
+  -webkit-user-select: none;
+}
+.done-btn:active { transform: scale(.98); }
+.done-btn.done { background: var(--bg-suc); color: var(--t-suc); cursor: default; }
+.lock-msg { font-size: 12px; color: var(--tm); text-align: center; margin-top: 9px; }
+
+/* TODAY HEADER */
+.today-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.today-greeting { font-size: 20px; font-weight: 500; color: var(--tp); }
+.today-date { font-size: 12px; color: var(--tm); margin-top: 2px; }
+.streak-block { text-align: right; }
+.streak-num { font-size: 24px; font-weight: 500; color: var(--tp); line-height: 1; }
+.streak-lbl { font-size: 10px; color: var(--tm); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sb">
+    <span id="clock">9:41</span>
+    <span class="sb-title">Wellness</span>
+    <span id="sb-right">●●●</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('hoy',this)">Hoy</div>
+    <div class="tab" onclick="showTab('rutina',this)">Rutina</div>
+    <div class="tab" onclick="showTab('nutricion',this)">Nutrición</div>
+    <div class="tab" onclick="showTab('entreno',this)">Entreno</div>
+  </div>
+
+  <!-- HOY -->
+  <div id="tab-hoy" class="scroll">
+    <div class="today-header">
+      <div>
+        <div class="today-greeting" id="greeting">Buenos días</div>
+        <div class="today-date" id="today-date"></div>
+      </div>
+      <div class="streak-block">
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="streak-lbl">días racha</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="today-type" style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:12px"></div>
+      <div class="rings-row">
+        <div class="ring-item">
+          <svg width="68" height="68" viewBox="0 0 68 68">
+            <circle cx="34" cy="34" r="28" fill="none" stroke="var(--bd)" stroke-width="5"/>
+            <circle id="ring-ex" cx="34" cy="34" r="28" fill="none" stroke="var(--fill-acc)" stroke-width="5" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176" transform="rotate(-90 34 34)" style="transition:stroke-dashoffset .4s"/>
+            <text x="34" y="39" text-anchor="middle" font-size="13" font-weight="500" fill="var(--tp)" id="ring-ex-txt">0/7</text>
+          </svg>
+          <div class="ring-label">Ejercicios</div>
+        </div>
+        <div class="ring-item">
+          <svg width="68" height="68" viewBox="0 0 68 68">
+            <circle cx="34" cy="34" r="28" fill="none" stroke="var(--bd)" stroke-width="5"/>
+            <circle id="ring-kcal" cx="34" cy="34" r="28" fill="none" stroke="#639922" stroke-width="5" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176" transform="rotate(-90 34 34)" style="transition:stroke-dashoffset .4s"/>
+            <text x="34" y="38" text-anchor="middle" font-size="11" font-weight="500" fill="var(--tp)" id="ring-kcal-txt">0</text>
+            <text x="34" y="50" text-anchor="middle" font-size="9" fill="var(--tm)">kcal</text>
+          </svg>
+          <div class="ring-label">Calorías</div>
+        </div>
+        <div class="ring-item">
+          <svg width="68" height="68" viewBox="0 0 68 68">
+            <circle cx="34" cy="34" r="28" fill="none" stroke="var(--bd)" stroke-width="5"/>
+            <circle id="ring-agua" cx="34" cy="34" r="28" fill="none" stroke="#185fa5" stroke-width="5" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176" transform="rotate(-90 34 34)" style="transition:stroke-dashoffset .4s"/>
+            <text x="34" y="39" text-anchor="middle" font-size="13" font-weight="500" fill="var(--tp)" id="ring-agua-txt">0/8</text>
+          </svg>
+          <div class="ring-label">Agua</div>
+        </div>
+      </div>
+      <div class="agua-row">
+        <span style="font-size:11px;color:var(--tm)">Vasos de agua</span>
+        <div class="agua-dots" id="agua-dots"></div>
+      </div>
+    </div>
+
+    <div class="sec">Pendiente hoy</div>
+    <div id="pending-list"></div>
+  </div>
+
+  <!-- RUTINA -->
+  <div id="tab-rutina" class="scroll hidden">
+    <div class="sec">Columna &amp; fascia</div>
+    <div id="r0" class="ex-row" onclick="openEx(0)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083808_4ac724c5-873e-4940-91c6-f198fe3ea115_min.webp" alt="Cat-Cow"><div class="einfo"><div class="ename">Cat-Cow</div><div class="emeta">10 reps × 3 · Mañana</div></div><span id="a0" class="earr">›</span></div>
+    <div id="r1" class="ex-row" onclick="openEx(1)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083810_413ab897-a5d0-40b2-9232-45da2b2c42a7_min.webp" alt="Child's Pose"><div class="einfo"><div class="ename">Child's Pose</div><div class="emeta">60 s · Mañana</div></div><span id="a1" class="earr">›</span></div>
+    <div id="r2" class="ex-row" onclick="openEx(2)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083815_183803aa-4b00-41ab-b288-0dc2dcf3c440_min.webp" alt="Dead Bug"><div class="einfo"><div class="ename">Dead Bug</div><div class="emeta">8 reps c/lado × 3 · Mañana</div></div><span id="a2" class="earr">›</span></div>
+    <div class="sec">Postura &amp; cervical</div>
+    <div id="r3" class="ex-row" onclick="openEx(3)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083816_e425f37d-4d32-451b-830a-8be041f7b6fc_min.webp" alt="Chin Tuck"><div class="einfo"><div class="ename">Chin Tuck</div><div class="emeta">10 reps × 2 · 2×/día</div></div><span id="a3" class="earr">›</span></div>
+    <div class="sec">Fascia oral &amp; facial</div>
+    <div id="r4" class="ex-row" onclick="openEx(4)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083818_5cca953f-d31f-4191-b606-0907353e2b98_min.webp" alt="Palatal Sweep"><div class="einfo"><div class="ename">Palatal Sweep</div><div class="emeta">10 pases × 3 · Mañana</div></div><span id="a4" class="earr">›</span></div>
+    <div id="r5" class="ex-row" onclick="openEx(5)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083820_abc1ffac-ac32-414e-83ec-48b5d32ae22d_min.webp" alt="Tongue Press"><div class="einfo"><div class="ename">Tongue Press</div><div class="emeta">60 s × 3 series · Mañana</div></div><span id="a5" class="earr">›</span></div>
+    <div id="r6" class="ex-row" onclick="openEx(6)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083823_f85d345b-1b53-4779-affe-36a9a6e6c4c0_min.webp" alt="Asimetría facial"><div class="einfo"><div class="ename">Asimetría facial</div><div class="emeta">60 s c/lado · 1×/día</div></div><span id="a6" class="earr">›</span></div>
+  </div>
+
+  <!-- NUTRICIÓN -->
+  <div id="tab-nutricion" class="scroll hidden">
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:12px">Macros del día</div>
+      <div class="macro-wrap">
+        <svg width="88" height="88" viewBox="0 0 88 88" flex-shrink="0" style="flex-shrink:0">
+          <circle cx="44" cy="44" r="36" fill="none" stroke="var(--bd)" stroke-width="9"/>
+          <circle id="mp" cx="44" cy="44" r="36" fill="none" stroke="#639922" stroke-width="9" stroke-linecap="butt" stroke-dasharray="226" stroke-dashoffset="226" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .3s"/>
+          <circle id="mc" cx="44" cy="44" r="36" fill="none" stroke="#185fa5" stroke-width="9" stroke-linecap="butt" stroke-dasharray="226" stroke-dashoffset="226" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .3s"/>
+          <circle id="mf" cx="44" cy="44" r="36" fill="none" stroke="#ba7517" stroke-width="9" stroke-linecap="butt" stroke-dasharray="226" stroke-dashoffset="226" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .3s"/>
+          <text x="44" y="41" text-anchor="middle" font-size="14" font-weight="500" fill="var(--tp)" id="kcal-txt">0</text>
+          <text x="44" y="55" text-anchor="middle" font-size="10" fill="var(--tm)">/ 2700</text>
+        </svg>
+        <div class="macro-nums">
+          <div class="macro-line"><span class="macro-label" style="color:#639922">Proteína</span><span class="macro-val" id="pv">0 / 170g</span></div>
+          <div class="macro-bar"><div id="pf" class="macro-fill" style="background:#639922;width:0%"></div></div>
+          <div class="macro-line"><span class="macro-label" style="color:#185fa5">Carbos</span><span class="macro-val" id="cv">0 / 335g</span></div>
+          <div class="macro-bar"><div id="cf" class="macro-fill" style="background:#185fa5;width:0%"></div></div>
+          <div class="macro-line"><span class="macro-label" style="color:#ba7517">Grasas</span><span class="macro-val" id="fv">0 / 75g</span></div>
+          <div class="macro-bar" style="margin-bottom:0"><div id="ff" class="macro-fill" style="background:#ba7517;width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">Comidas</div>
+    <div class="card-inner" id="meals-list"></div>
+
+    <div class="sec">Suplementos</div>
+    <div class="card-inner" id="supps-list"></div>
+  </div>
+
+  <!-- ENTRENO -->
+  <div id="tab-entreno" class="scroll hidden">
+    <div class="card">
+      <div style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:10px">Semana — Split 4 días</div>
+      <div class="week-row">
+        <div class="day-col"><div class="day-dot" style="background:#e6f1fb;color:#185fa5">P</div><div class="day-num">L</div></div>
+        <div class="day-col"><div class="day-dot" style="background:#eaf3de;color:#3b6d11">J</div><div class="day-num">M</div></div>
+        <div class="day-col"><div class="day-dot" style="background:var(--s1);color:var(--tm)">—</div><div class="day-num">X</div></div>
+        <div class="day-col"><div class="day-dot" style="background:#faeeda;color:#854f0b">P</div><div class="day-num">J</div></div>
+        <div class="day-col"><div class="day-dot" style="background:#eaf3de;color:#3b6d11">J</div><div class="day-num">V</div></div>
+        <div class="day-col"><div class="day-dot" style="background:var(--s1);color:var(--tm)">—</div><div class="day-num">S</div></div>
+        <div class="day-col"><div class="day-dot" style="background:var(--s1);color:var(--tm)">—</div><div class="day-num">D</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--tm);margin-top:8px">P = Push · J = Jalar · P = Pierna</div>
+    </div>
+
+    <div class="warn-box">⚠ Primeras 8 semanas sin barra. Mancuernas y máquinas únicamente.</div>
+
+    <div class="sec">Lunes — Push</div>
+    <div class="card" style="padding:4px 14px">
+      <div class="entreno-row"><div class="eicon" style="background:#e6f1fb">🏋</div><div class="erow-info"><div class="erow-name">Press banca mancuernas</div><div class="erow-meta">4 × 8–10 · 2 min descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#e6f1fb">💪</div><div class="erow-info"><div class="erow-name">Press hombro sentado</div><div class="erow-meta">3 × 10–12 · 90 s descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#e6f1fb">🎯</div><div class="erow-info"><div class="erow-name">Face pulls</div><div class="erow-meta">3 × 15 · 60 s · postura</div></div></div>
+    </div>
+
+    <div class="sec">Martes &amp; Viernes — Pull</div>
+    <div class="card" style="padding:4px 14px">
+      <div class="entreno-row"><div class="eicon" style="background:#eaf3de">🔽</div><div class="erow-info"><div class="erow-name">Lat pulldown</div><div class="erow-meta">4 × 8–10 · 2 min descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#eaf3de">↩️</div><div class="erow-info"><div class="erow-name">Remo en polea baja</div><div class="erow-meta">3 × 10–12 · 90 s descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#eaf3de">🎯</div><div class="erow-info"><div class="erow-name">Face pulls</div><div class="erow-meta">3 × 15 · 60 s descanso</div></div></div>
+    </div>
+
+    <div class="sec">Jueves — Pierna</div>
+    <div class="card" style="padding:4px 14px">
+      <div class="entreno-row"><div class="eicon" style="background:#faeeda">🏋</div><div class="erow-info"><div class="erow-name">Goblet squat</div><div class="erow-meta">4 × 10–12 · 2 min descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#faeeda">🦵</div><div class="erow-info"><div class="erow-name">Leg press</div><div class="erow-meta">3 × 12–15 · 2 min descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#faeeda">📐</div><div class="erow-info"><div class="erow-name">Romanian Deadlift</div><div class="erow-meta">3 × 10 · 2 min descanso</div></div></div>
+      <div class="entreno-row"><div class="eicon" style="background:#faeeda">🍑</div><div class="erow-info"><div class="erow-name">Hip thrust</div><div class="erow-meta">3 × 12 · 90 s descanso</div></div></div>
+    </div>
+
+    <div class="sec">Calentamiento obligatorio</div>
+    <div class="card" style="margin-bottom:32px">
+      <div class="calent-list">
+        <div>① Cat-Cow — 10 reps × 2</div>
+        <div>② Child's Pose — 60 s</div>
+        <div>③ Dead Bug — 8 reps c/lado × 2</div>
+        <div>④ Chin Tuck — 10 reps × 1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY EJERCICIO -->
+  <div class="ov" id="ov-ex">
+    <div class="ov-head">
+      <button class="ov-back" onclick="closeEx()">←</button>
+      <span class="ov-title" id="ov-name"></span>
+    </div>
+    <div class="ov-scroll">
+      <img class="ov-img" id="ov-img" alt="">
+      <span class="pill" id="ov-tag"></span>
+      <div class="sets-grid" id="ov-sets"></div>
+
+      <div id="timer-card" class="timer-card hidden">
+        <svg width="110" height="110" viewBox="0 0 110 110" style="display:block;margin:0 auto">
+          <circle cx="55" cy="55" r="46" fill="none" stroke="var(--bd)" stroke-width="7"/>
+          <circle id="t-arc" cx="55" cy="55" r="46" fill="none" stroke="var(--fill-acc)" stroke-width="7" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="0" transform="rotate(-90 55 55)" style="transition:stroke-dashoffset 1s linear"/>
+        </svg>
+        <div class="timer-num" id="t-num">1:00</div>
+        <div class="timer-serie" id="t-serie">Serie 1 de 3</div>
+        <div class="timer-btns">
+          <button class="tbtn" onclick="resetTimer()">↺</button>
+          <button class="tbtn primary" id="t-toggle" onclick="toggleTimer()">⏸ Pausa</button>
+          <button class="tbtn" onclick="nextSerie()">→</button>
+        </div>
+      </div>
+
+      <div id="reps-card" class="hidden" style="margin-bottom:14px">
+        <div class="timer-serie" id="r-serie" style="margin-bottom:8px;text-align:center"></div>
+        <div style="display:flex;gap:7px" id="r-btns"></div>
+      </div>
+
+      <div class="ov-desc" id="ov-desc"></div>
+      <ul class="ov-steps" id="ov-steps"></ul>
+      <button class="done-btn" id="done-btn" onclick="markDone()">Marcar como hecho</button>
+      <div class="lock-msg" id="lock-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const RUTINA = [
+  {name:"Cat-Cow",freq:24,tag:"Columna · Fascia",sets:3,reps:"10",timed:false,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083808_4ac724c5-873e-4940-91c6-f198fe3ea115_min.webp",
+   desc:"Moviliza la cadena fascial posterior completa. Sincroniza la respiración con el movimiento para liberar tensión lumbar y cervical.",
+   steps:["Cuatro patas: muñecas bajo hombros, rodillas bajo caderas","INHALA — deja caer el vientre y saca el pecho hacia arriba (Cow)","EXHALA — redondea la espalda hacia el techo y baja la cabeza (Cat)","10 repeticiones fluidas · 3 series · 30 s descanso entre series"]},
+  {name:"Child's Pose",freq:24,tag:"Lumbar · Fascia posterior",sets:1,reps:null,timed:true,duration:60,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083810_413ab897-a5d0-40b2-9232-45da2b2c42a7_min.webp",
+   desc:"Estira la cadena fascial posterior completa: lumbar, dorsal y cervical. Ideal para descompresión entre series o al despertar.",
+   steps:["Arrodíllate y junta los dedos gordos de los pies","Siéntate sobre los talones","Extiende los brazos al frente, frente apoyada en el suelo","Mantén 60 s respirando profundo hacia la espalda","Opcional: lleva los brazos a un lado para estiramiento lateral"]},
+  {name:"Dead Bug",freq:24,tag:"Core profundo · Lumbar",sets:3,reps:"8 c/lado",timed:false,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083815_183803aa-4b00-41ab-b288-0dc2dcf3c440_min.webp",
+   desc:"Activa el transverso abdominal sin cargar la columna. Ejercicio esencial durante la fase de lumbalgia activa.",
+   steps:["Tumbado boca arriba, rodillas a 90° sobre las caderas, brazos al techo","IMPORTANTE: la zona lumbar debe permanecer pegada al suelo en todo momento","Extiende el brazo derecho y la pierna izquierda simultáneamente","Vuelve al centro y alterna lados · 8 reps por lado · 3 series"]},
+  {name:"Chin Tuck",freq:12,tag:"Cervical · Postura",sets:2,reps:"10",timed:false,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083816_e425f37d-4d32-451b-830a-8be041f7b6fc_min.webp",
+   desc:"Corrige la postura de cabeza adelantada (forward head posture). Alarga extensores cervicales y activa flexores profundos. Hacer 2 veces al día.",
+   steps:["De pie o sentado contra la pared, espalda recta","Sin mover los hombros, desliza la cabeza hacia atrás (efecto papada)","La mirada permanece horizontal — no inclines la cabeza","Mantén 2 s, vuelve suavemente · 10 reps · 2 series","Repetir mañana y tarde (2 × al día)"]},
+  {name:"Palatal Sweep",freq:24,tag:"Maxila · Fascia oral",sets:3,reps:"10 pases",timed:false,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083818_5cca953f-d31f-4191-b606-0907353e2b98_min.webp",
+   desc:"Expansión del paladar duro mediante presión manual. Actúa sobre la sutura palatina para desarrollar el arco dental y mejorar la vía aérea nasal.",
+   steps:["Lávate los pulgares y abre la boca completamente","Coloca ambos pulgares en el paladar duro, parte posterior (antes de la zona blanda)","Presiona hacia arriba con fuerza 8/10 mientras deslizas hacia delante","Movimiento: atrás → adelante en 1–2 segundos por pase","10 pases · 3 series · 30 s descanso entre series · diario"]},
+  {name:"Tongue Press",freq:24,tag:"Mentón · Fascia",sets:3,reps:null,timed:true,duration:60,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083820_abc1ffac-ac32-414e-83ec-48b5d32ae22d_min.webp",
+   desc:"Combina la presión de la lengua contra el paladar con la resistencia del dedo bajo el mentón. Tensa el platisma y reduce la papada.",
+   steps:["Postura recta, cabeza neutra","Presiona TODA la lengua contra el paladar con la máxima fuerza posible","Coloca un dedo bajo el mentón y empuja hacia arriba como resistencia","Mantén la contracción 60 s sin mover la mandíbula","3 series · 20 s descanso entre series"]},
+  {name:"Asimetría facial",freq:24,tag:"Simetría · Fascia",sets:2,reps:null,timed:true,duration:60,
+   img:"https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_083823_f85d345b-1b53-4779-affe-36a9a6e6c4c0_min.webp",
+   desc:"Corrige asimetría mandibular y cervical combinando presión lingual lateral con rotación cervical opuesta.",
+   steps:["Sentado, postura recta","Empuja la lengua hacia la mejilla DERECHA con la máxima fuerza","Simultáneamente gira la cabeza hacia la IZQUIERDA · mantén 60 s","Alterna: lengua a la izquierda + cabeza a la derecha · 60 s","1 × al día cada lado"]}
+];
+
+const MEALS = [
+  {name:"Desayuno",time:"7:00",kcal:720,p:34,c:100,f:21,items:"Avena · leche · 2 huevos · plátano"},
+  {name:"Media mañana",time:"10:30",kcal:210,p:17,c:16,f:9,items:"Yogur griego 200g · manzana"},
+  {name:"Comida",time:"14:00",kcal:680,p:50,c:93,f:12,items:"Pollo 150g · arroz · ensalada · pan"},
+  {name:"Merienda",time:"17:00",kcal:340,p:30,c:46,f:4,items:"Batido proteína · plátano · tostada"},
+  {name:"Cena",time:"20:30",kcal:600,p:46,c:52,f:22,items:"Salmón 180g · boniato · verduras"},
+  {name:"Pre-cama",time:"22:00",kcal:150,p:19,c:7,f:5,items:"Queso cottage 150g"}
+];
+
+const SUPPS = [
+  {name:"D3 + K2",dose:"1 gota · mañana con comida",pre:true},
+  {name:"Hidrolites + Power of Nature",dose:"1 pastilla · mañana",pre:true},
+  {name:"Omega 3",dose:"1 cápsula · con comida",pre:true},
+  {name:"Creatina monohidrato",dose:"5 g/día · cualquier momento",pre:false},
+  {name:"Colágeno hidrolizado",dose:"10 g · ayuno mañana",pre:false},
+  {name:"Magnesio bisglicinato",dose:"300 mg · noche antes de dormir",pre:false}
+];
+
+let cur=null, tSec=0, tTotal=0, tRun=false, tIv=null, curS=1, totS=1;
+let agua=parseInt(localStorage.getItem('agua')||'0');
+
+function todayKey(){ return new Date().toDateString(); }
+function mealKey(i){ return 'meal_'+todayKey()+'_'+i; }
+function suppKey(i){ return 'supp_'+todayKey()+'_'+i; }
+
+function showTab(id,el){
+  ['hoy','rutina','nutricion','entreno'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.add('hidden');
+  });
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='hoy') updateHome();
+  if(id==='nutricion') buildNutricion();
+}
+
+function timeLeft(i){
+  const ts=localStorage.getItem('ex_'+i);
+  if(!ts) return null;
+  const left=RUTINA[i].freq-(Date.now()-+ts)/3600000;
+  if(left<=0){localStorage.removeItem('ex_'+i);return null;}
+  const h=Math.floor(left),m=Math.round((left-h)*60);
+  return h>0?h+'h '+m+'m':m+'m';
+}
+
+function refreshRutina(){
+  RUTINA.forEach((_,i)=>{
+    const tl=timeLeft(i);
+    document.getElementById('r'+i).classList.toggle('locked',!!tl);
+    const a=document.getElementById('a'+i);
+    if(tl){a.textContent='✓';a.className='done-arr';}
+    else{a.textContent='›';a.className='earr';}
+  });
+}
+
+function updateHome(){
+  const now=new Date();
+  const h=now.getHours();
+  document.getElementById('greeting').textContent=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
+  document.getElementById('today-date').textContent=now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('streak-num').textContent=localStorage.getItem('streak')||'0';
+
+  const days=['Descanso','Push — pecho y hombros','Pull — espalda','Descanso','Pierna — cuádriceps y glúteo','Pull — espalda','Descanso'];
+  const cols=['var(--tm)','#185fa5','#3b6d11','var(--tm)','#854f0b','#3b6d11','var(--tm)'];
+  const d=now.getDay();
+  const tt=document.getElementById('today-type');
+  tt.textContent='Hoy: '+days[d]; tt.style.color=cols[d];
+
+  const done=RUTINA.filter((_,i)=>!!localStorage.getItem('ex_'+i)).length;
+  const total=RUTINA.length;
+  setRing('ring-ex',done/total);
+  document.getElementById('ring-ex-txt').textContent=done+'/'+total;
+
+  const kcal=MEALS.reduce((s,m,i)=>s+(localStorage.getItem(mealKey(i))?m.kcal:0),0);
+  setRing('ring-kcal',kcal/2700);
+  document.getElementById('ring-kcal-txt').textContent=kcal;
+
+  setRing('ring-agua',agua/8);
+  document.getElementById('ring-agua-txt').textContent=agua+'/8';
+
+  const dots=document.getElementById('agua-dots');
+  dots.innerHTML='';
+  for(let i=0;i<8;i++){
+    const b=document.createElement('div');
+    b.className='agua-dot';
+    b.style.background=i<agua?'#185fa5':'var(--bd)';
+    b.onclick=()=>{ agua=i+1===agua?i:i+1; localStorage.setItem('agua',agua); updateHome(); };
+    dots.appendChild(b);
+  }
+
+  const pl=document.getElementById('pending-list');
+  pl.innerHTML='';
+  RUTINA.forEach((ex,i)=>{
+    if(!timeLeft(i)){
+      const row=document.createElement('div');
+      row.className='ex-row';
+      row.innerHTML='<img class="ethumb" src="'+ex.img+'" alt="'+ex.name+'"><div class="einfo"><div class="ename">'+ex.name+'</div><div class="emeta">'+ex.tag+'</div></div><span class="earr">›</span>';
+      row.onclick=()=>{ showTab('rutina',document.querySelectorAll('.tab')[1]); setTimeout(()=>openEx(i),80); };
+      pl.appendChild(row);
+    }
+  });
+  if(!pl.children.length){
+    pl.innerHTML='<div class="pending-empty">Todos los ejercicios completados hoy ✓</div>';
+  }
+}
+
+function setRing(id,pct){
+  const circ=176;
+  document.getElementById(id).style.strokeDashoffset=circ*(1-Math.min(pct,1));
+}
+
+function buildNutricion(){
+  const ml=document.getElementById('meals-list');
+  ml.innerHTML='';
+  MEALS.forEach((m,i)=>{
+    const eaten=!!localStorage.getItem(mealKey(i));
+    const row=document.createElement('div');
+    row.className='meal-row';
+    row.innerHTML=
+      '<div class="mcb'+(eaten?' on':'')+'">✓</div>'+
+      '<div class="meal-info"><div class="meal-name">'+m.name+'</div><div class="meal-sub">'+m.time+' · '+m.items+'</div></div>'+
+      '<div class="meal-kcal">'+m.kcal+'&nbsp;kcal</div>';
+    row.onclick=()=>{
+      const cb=row.querySelector('.mcb');
+      const was=cb.classList.contains('on');
+      was?localStorage.removeItem(mealKey(i)):localStorage.setItem(mealKey(i),'1');
+      cb.classList.toggle('on',!was);
+      updateMacros();
+    };
+    ml.appendChild(row);
+  });
+
+  const sl=document.getElementById('supps-list');
+  sl.innerHTML='';
+  SUPPS.forEach((s,i)=>{
+    const on=!!(localStorage.getItem(suppKey(i))||s.pre);
+    const row=document.createElement('div');
+    row.className='supp-row';
+    row.innerHTML=
+      '<div class="scb'+(on?' on':'')+'">✓</div>'+
+      '<div style="flex:1;min-width:0"><div class="supp-name">'+s.name+'</div><div class="supp-dose">'+s.dose+'</div></div>';
+    row.onclick=()=>{
+      const cb=row.querySelector('.scb');
+      const was=cb.classList.contains('on');
+      was?localStorage.removeItem(suppKey(i)):localStorage.setItem(suppKey(i),'1');
+      cb.classList.toggle('on',!was);
+    };
+    sl.appendChild(row);
+  });
+
+  updateMacros();
+}
+
+function updateMacros(){
+  let p=0,c=0,f=0,k=0;
+  MEALS.forEach((m,i)=>{ if(localStorage.getItem(mealKey(i))){p+=m.p;c+=m.c;f+=m.f;k+=m.kcal;} });
+  document.getElementById('kcal-txt').textContent=k;
+  document.getElementById('pv').textContent=p+' / 170g';
+  document.getElementById('cv').textContent=c+' / 335g';
+  document.getElementById('fv').textContent=f+' / 75g';
+  document.getElementById('pf').style.width=Math.min(p/170*100,100)+'%';
+  document.getElementById('cf').style.width=Math.min(c/335*100,100)+'%';
+  document.getElementById('ff').style.width=Math.min(f/75*100,100)+'%';
+  const circ=226;
+  document.getElementById('mp').style.strokeDashoffset=circ*(1-Math.min(p/170,1));
+  document.getElementById('mc').style.strokeDashoffset=circ*(1-Math.min(c/335,1));
+  document.getElementById('mf').style.strokeDashoffset=circ*(1-Math.min(f/75,1));
+}
+
+function openEx(i){
+  cur=i; clearT();
+  const ex=RUTINA[i];
+  document.getElementById('ov-name').textContent=ex.name;
+  document.getElementById('ov-img').src=ex.img;
+  document.getElementById('ov-tag').textContent=ex.tag;
+  document.getElementById('ov-sets').innerHTML=
+    '<div class="sg-col"><div class="sg-val">'+ex.sets+'</div><div class="sg-lbl">Series</div></div>'+
+    '<div class="sg-col"><div class="sg-val">'+(ex.reps||(ex.duration+'s'))+'</div><div class="sg-lbl">'+(ex.reps?'Reps':'Duración')+'</div></div>'+
+    '<div class="sg-col"><div class="sg-val">30s</div><div class="sg-lbl">Descanso</div></div>';
+  document.getElementById('ov-desc').textContent=ex.desc;
+  const ul=document.getElementById('ov-steps');
+  ul.innerHTML='';
+  ex.steps.forEach((s,n)=>{
+    const li=document.createElement('li');
+    li.innerHTML='<span class="n">'+(n+1)+'.</span><span>'+s+'</span>';
+    ul.appendChild(li);
+  });
+
+  totS=ex.sets; curS=1;
+  if(ex.timed){
+    document.getElementById('timer-card').classList.remove('hidden');
+    document.getElementById('reps-card').classList.add('hidden');
+    startT(ex.duration);
+  } else {
+    document.getElementById('timer-card').classList.add('hidden');
+    document.getElementById('reps-card').classList.remove('hidden');
+    buildReps();
+  }
+
+  const tl=timeLeft(i);
+  const btn=document.getElementById('done-btn');
+  const msg=document.getElementById('lock-msg');
+  if(tl){ btn.textContent='✓ Completado'; btn.className='done-btn done'; msg.textContent='Disponible en '+tl; }
+  else { btn.textContent='Marcar como hecho'; btn.className='done-btn'; msg.textContent=''; }
+
+  document.getElementById('ov-ex').classList.add('open');
+}
+
+function closeEx(){
+  clearT();
+  document.getElementById('ov-ex').classList.remove('open');
+  refreshRutina(); updateHome();
+}
+
+function clearT(){ if(tIv) clearInterval(tIv); tIv=null; tRun=false; }
+
+function startT(sec){
+  tSec=sec; tTotal=sec; tRun=true;
+  document.getElementById('t-serie').textContent='Serie '+curS+' de '+totS;
+  document.getElementById('t-toggle').textContent='⏸ Pausa';
+  updT();
+  tIv=setInterval(()=>{
+    if(tSec>0){ tSec--; updT(); }
+    else{ clearT(); document.getElementById('t-toggle').textContent='✓ Lista'; }
+  },1000);
+}
+
+function updT(){
+  const m=Math.floor(tSec/60), s=tSec%60;
+  document.getElementById('t-num').textContent=m+':'+(s<10?'0':'')+s;
+  document.getElementById('t-arc').style.strokeDashoffset=289*(1-tSec/tTotal);
+}
+
+function toggleTimer(){
+  if(!tRun && tSec===0) return;
+  if(tRun){ clearT(); document.getElementById('t-toggle').textContent='▶ Reanudar'; }
+  else{
+    tRun=true;
+    document.getElementById('t-toggle').textContent='⏸ Pausa';
+    tIv=setInterval(()=>{
+      if(tSec>0){ tSec--; updT(); }
+      else{ clearT(); document.getElementById('t-toggle').textContent='✓ Lista'; }
+    },1000);
+  }
+}
+
+function resetTimer(){ clearT(); startT(RUTINA[cur].duration); }
+
+function nextSerie(){
+  clearT();
+  if(curS<totS) curS++;
+  document.getElementById('t-toggle').textContent='⏸ Pausa';
+  startT(RUTINA[cur].duration);
+}
+
+function buildReps(){
+  document.getElementById('r-serie').textContent='Serie '+curS+' de '+totS;
+  const btns=document.getElementById('r-btns');
+  btns.innerHTML='';
+  for(let i=1;i<=totS;i++){
+    const b=document.createElement('button');
+    b.className='tbtn'+(i<curS?' primary':'');
+    b.textContent=i;
+    b.style.flexShrink='0';
+    b.onclick=()=>{ curS=i; buildReps(); };
+    btns.appendChild(b);
+  }
+}
+
+function markDone(){
+  if(cur===null||timeLeft(cur)) return;
+  localStorage.setItem('ex_'+cur,Date.now()+'');
+  const btn=document.getElementById('done-btn');
+  btn.textContent='✓ Completado'; btn.className='done-btn done';
+  document.getElementById('lock-msg').textContent='Disponible en '+RUTINA[cur].freq+'h';
+  const s=parseInt(localStorage.getItem('streak')||'0');
+  localStorage.setItem('streak',s+1);
+  refreshRutina(); updateHome();
+}
+
+function tick(){
+  const n=new Date();
+  const h=n.getHours(),m=n.getMinutes();
+  document.getElementById('clock').textContent=h+':'+(m<10?'0':'')+m;
+}
+
+tick(); updateHome(); buildNutricion(); refreshRutina();
+setInterval(tick,30000); setInterval(refreshRutina,60000);
+
+const VAPID_PUBLIC = 'BCCCr2I11Vv0T_VhAcbS-ZGCtR4zv_vGDP1fhl6oLtQWrVoGmPtkXmWVbc0qqakk0VnCVMKOtXxplm1AB6bM9TQ';
+
+async function initPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  const reg = await navigator.serviceWorker.register('/sw.js');
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+    });
+    await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub)
+    });
+  }
+}
+
+function urlBase64ToUint8Array(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+initPush();
+</script>
+</body>
+</html>
