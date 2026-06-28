@@ -538,6 +538,22 @@ html, body {
 .streak-block { text-align: right; }
 .streak-num { font-size: 24px; font-weight: 500; color: var(--tp); line-height: 1; }
 .streak-lbl { font-size: 10px; color: var(--tm); }
+.week-strip { display: flex; gap: 5px; justify-content: flex-end; margin-top: 6px; }
+.wday { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.wday-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bd); }
+.wday-dot.done { background: var(--fill-acc); }
+.wday-dot.today-done { background: #3b6d11; }
+.wday-lbl { font-size: 8px; color: var(--tm); }
+.daily-task-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--bd); }
+.daily-task-row:last-child { border-bottom: none; }
+.dtask-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bd); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .2s; }
+.dtask-check.done { background: var(--fill-acc); border-color: var(--fill-acc); color: #fff; }
+.dtask-check.freq-week { border-style: dashed; }
+.dtask-check.freq-week.done { background: #639922; border-color: #639922; }
+.dtask-info { flex: 1; min-width: 0; }
+.dtask-name { font-size: 14px; color: var(--tp); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dtask-freq { font-size: 11px; color: var(--tm); margin-top: 1px; }
+.daily-complete-banner { background: var(--bg-suc); color: var(--t-suc); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; font-weight: 500; text-align: center; margin: 0 16px; }
 </style>
 </head>
 <body>
@@ -563,7 +579,8 @@ html, body {
       </div>
       <div class="streak-block">
         <div class="streak-num" id="streak-num">0</div>
-        <div class="streak-lbl">días racha</div>
+        <div class="streak-lbl">días racha 🔥</div>
+        <div class="week-strip" id="week-strip"></div>
       </div>
     </div>
 
@@ -602,7 +619,10 @@ html, body {
       </div>
     </div>
 
-    <div class="sec">Pendiente hoy</div>
+    <div class="sec">Tareas de hoy</div>
+    <div id="daily-tasks"></div>
+
+    <div class="sec" style="margin-top:8px">Pendiente</div>
     <div id="pending-list"></div>
   </div>
 
@@ -829,6 +849,41 @@ let cur=null, tSec=0, tTotal=0, tRun=false, tIv=null, curS=1, totS=1;
 let agua=parseInt(localStorage.getItem('agua')||'0');
 
 function todayKey(){ return new Date().toDateString(); }
+function dayKey(d){ return 'done_day_'+d.toDateString(); }
+function isDayDone(d){ return !!localStorage.getItem(dayKey(d)); }
+
+function checkDailyComplete(){
+  const allDone = RUTINA.every((ex,i) => ex.freq > 24 || !!localStorage.getItem('ex_'+i));
+  if(!allDone) return;
+  const today = new Date();
+  const tk = dayKey(today);
+  if(localStorage.getItem(tk)) return;
+  localStorage.setItem(tk,'1');
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  const lastStreakDay = localStorage.getItem('streak_last');
+  const prev = parseInt(localStorage.getItem('streak')||'0');
+  const newStreak = (lastStreakDay===yesterday.toDateString()||prev===0) ? prev+1 : 1;
+  localStorage.setItem('streak', newStreak);
+  localStorage.setItem('streak_last', today.toDateString());
+}
+
+function buildWeekStrip(){
+  const strip = document.getElementById('week-strip');
+  if(!strip) return;
+  strip.innerHTML = '';
+  const days = ['D','L','M','X','J','V','S'];
+  const today = new Date();
+  for(let i=6; i>=0; i--){
+    const d = new Date(today); d.setDate(today.getDate()-i);
+    const done = isDayDone(d);
+    const isToday = i===0;
+    const el = document.createElement('div');
+    el.className = 'wday';
+    el.innerHTML = '<div class="wday-dot'+(done?(isToday?' today-done':' done'):'')+'"></div>'
+      +'<div class="wday-lbl">'+days[d.getDay()]+'</div>';
+    strip.appendChild(el);
+  }
+}
 function mealKey(i){ return 'meal_'+todayKey()+'_'+i; }
 function suppKey(i){ return 'supp_'+todayKey()+'_'+i; }
 
@@ -868,6 +923,7 @@ function updateHome(){
   document.getElementById('greeting').textContent=h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';
   document.getElementById('today-date').textContent=now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('streak-num').textContent=localStorage.getItem('streak')||'0';
+  buildWeekStrip();
 
   const days=['Descanso','Push — pecho y hombros','Pull — espalda','Descanso','Pierna — cuádriceps y glúteo','Pull — espalda','Descanso'];
   const cols=['var(--tm)','#185fa5','#3b6d11','var(--tm)','#854f0b','#3b6d11','var(--tm)'];
@@ -897,10 +953,39 @@ function updateHome(){
     dots.appendChild(b);
   }
 
+  // Daily task checklist
+  const dt=document.getElementById('daily-tasks');
+  dt.innerHTML='';
+  const card=document.createElement('div');
+  card.className='card';
+  card.style.padding='0';
+  const dailyDone = RUTINA.filter((ex,i)=>ex.freq<=24&&!!localStorage.getItem('ex_'+i)).length;
+  const dailyTotal = RUTINA.filter(ex=>ex.freq<=24).length;
+  const allCompleted = dailyDone===dailyTotal;
+  if(allCompleted){
+    dt.innerHTML='<div class="daily-complete-banner">✓ Todos los ejercicios del día completados</div>';
+  } else {
+    RUTINA.forEach((ex,i)=>{
+      const isDone=!!localStorage.getItem('ex_'+i);
+      const isWeekly=ex.freq>24;
+      const row=document.createElement('div');
+      row.className='daily-task-row';
+      row.style.cursor='pointer';
+      const checkCls='dtask-check'+(isWeekly?' freq-week':'')+(isDone?' done':'');
+      row.innerHTML='<div class="'+checkCls+'">'+(isDone?'✓':'')+'</div>'
+        +'<div class="dtask-info"><div class="dtask-name">'+ex.name+'</div>'
+        +'<div class="dtask-freq">'+(isWeekly?'2× sem':'Diario')+' · '+ex.tag+'</div></div>';
+      row.onclick=()=>{ showTab('rutina',document.querySelectorAll('.tab')[1]); setTimeout(()=>openEx(i),80); };
+      card.appendChild(row);
+    });
+    dt.appendChild(card);
+  }
+
+  // Pending list (only non-done daily exercises)
   const pl=document.getElementById('pending-list');
   pl.innerHTML='';
   RUTINA.forEach((ex,i)=>{
-    if(!timeLeft(i)){
+    if(ex.freq<=24&&!localStorage.getItem('ex_'+i)){
       const row=document.createElement('div');
       row.className='ex-row';
       row.innerHTML='<img class="ethumb" src="'+ex.img+'" alt="'+ex.name+'"><div class="einfo"><div class="ename">'+ex.name+'</div><div class="emeta">'+ex.tag+'</div></div><span class="earr">›</span>';
@@ -909,7 +994,7 @@ function updateHome(){
     }
   });
   if(!pl.children.length){
-    pl.innerHTML='<div class="pending-empty">Todos los ejercicios completados hoy ✓</div>';
+    pl.innerHTML='<div class="pending-empty">Nada pendiente — buen trabajo 💪</div>';
   }
 }
 
@@ -1082,8 +1167,7 @@ function markDone(){
   const btn=document.getElementById('done-btn');
   btn.textContent='✓ Completado'; btn.className='done-btn done';
   document.getElementById('lock-msg').textContent='Disponible en '+RUTINA[cur].freq+'h';
-  const s=parseInt(localStorage.getItem('streak')||'0');
-  localStorage.setItem('streak',s+1);
+  checkDailyComplete();
   refreshRutina(); updateHome();
 }
 
