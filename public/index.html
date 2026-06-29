@@ -994,6 +994,7 @@ const SUPPS = [
 let cur=null, tSec=0, tTotal=0, tRun=false, tIv=null, curS=1, totS=1;
 let agua=parseFloat(localStorage.getItem('agua')||'0');
 let _activeMealSlot=null;
+let _pendingFoods=[], _pendingThumb=null;
 
 function todayKey(){ return new Date().toDateString(); }
 function dayKey(d){ return 'done_day_'+d.toDateString(); }
@@ -1512,18 +1513,33 @@ document.getElementById('food-input').addEventListener('change', async function(
   }
 
   // Build result card
-  const foods = result.foods||[];
-  const total = result.total||{kcal:0,protein_g:0,carbs_g:0,fat_g:0};
-
+  _pendingFoods = result.foods||[];
+  _pendingThumb = thumb;
   resultEl.style.display='block';
+  renderFoodResult();
+});
+
+function renderFoodResult(){
+  const resultEl = document.getElementById('food-result');
+  const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
   resultEl.innerHTML=`
     <div class="food-result">
-      <div class="food-result-header">Detectado</div>
-      ${foods.map(f=>`
-        <div class="food-item-row">
-          <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:400">${f.amount}</span></span>
-          <span class="food-item-macros">${f.kcal} kcal</span>
-        </div>`).join('')}
+      <div class="food-result-header">Detectado — toca ✕ para quitar o añade lo que falta</div>
+      <div id="pending-foods-list">
+        ${_pendingFoods.map((f,i)=>`
+          <div class="food-item-row">
+            <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:400">${f.amount||''}</span></span>
+            <span style="display:flex;align-items:center;gap:8px">
+              <span class="food-item-macros">${f.kcal} kcal</span>
+              <button onclick="removePendingFood(${i})" style="background:none;border:none;color:var(--tm);font-size:16px;cursor:pointer;padding:0 2px;line-height:1">✕</button>
+            </span>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;margin:10px 0 4px">
+        <input id="add-food-input" type="text" placeholder="ej: pollo 150g, yogur griego…" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--s0);color:var(--tp);font-size:13px;font-family:-apple-system,sans-serif">
+        <button id="add-food-btn" onclick="addPendingFood()" style="padding:9px 14px;border-radius:8px;border:none;background:var(--s2);color:var(--tp);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--bd)">+ Añadir</button>
+      </div>
+      <div id="add-food-loading" style="display:none;font-size:12px;color:var(--tm);padding:4px 0">Calculando…</div>
       <div class="food-total-row">
         <div class="food-total-cell"><div class="food-total-val">${total.kcal}</div><div class="food-total-lbl">kcal</div></div>
         <div class="food-total-cell"><div class="food-total-val" style="color:#639922">${total.protein_g}g</div><div class="food-total-lbl">proteína</div></div>
@@ -1531,21 +1547,43 @@ document.getElementById('food-input').addEventListener('change', async function(
         <div class="food-total-cell"><div class="food-total-val" style="color:#ba7517">${total.fat_g}g</div><div class="food-total-lbl">grasas</div></div>
       </div>
       <div class="food-actions">
-        <button class="btn-confirm" onclick="confirmFood(${JSON.stringify(JSON.stringify({foods,total,thumb}))})">Añadir</button>
+        <button class="btn-confirm" onclick="confirmFood()">Añadir al registro</button>
         <button class="btn-cancel" onclick="document.getElementById('food-result').style.display='none'">Cancelar</button>
       </div>
     </div>`;
-});
+}
 
-function confirmFood(jsonStr){
-  const {foods,total,thumb} = JSON.parse(jsonStr);
+function removePendingFood(i){
+  _pendingFoods.splice(i,1);
+  renderFoodResult();
+}
+
+async function addPendingFood(){
+  const input = document.getElementById('add-food-input');
+  const text = input.value.trim();
+  if(!text) return;
+  const loading = document.getElementById('add-food-loading');
+  const btn = document.getElementById('add-food-btn');
+  loading.style.display='block'; btn.disabled=true;
+  try {
+    const r = await fetch('/api/estimate-food',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    const data = await r.json();
+    if(data.name){ _pendingFoods.push(data); input.value=''; renderFoodResult(); }
+    else { loading.textContent='No se pudo calcular, intenta ser más específico'; setTimeout(()=>{ loading.style.display='none'; loading.textContent='Calculando…'; },2000); }
+  } catch(e){ loading.style.display='none'; }
+  btn.disabled=false;
+}
+
+function confirmFood(){
+  const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
   const now = new Date();
   const time = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   const log = getPhotoLog(now);
-  log.push({foods,total,thumb,time});
+  log.push({foods:_pendingFoods, total, thumb:_pendingThumb, time});
   savePhotoLog(now, log);
   document.getElementById('food-result').style.display='none';
   document.getElementById('food-result').innerHTML='';
+  _pendingFoods=[]; _pendingThumb=null;
   renderPhotoLog();
   updateMacros();
 }
