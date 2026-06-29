@@ -1445,21 +1445,41 @@ function renderPhotoLog(){
     + '</div>';
 }
 
+function drawImageToJpeg(img, maxPx, quality){
+  const scale = Math.min(1, maxPx/Math.max(img.width||1, img.height||1));
+  const w = Math.round((img.width||1)*scale), h = Math.round((img.height||1)*scale);
+  const c = document.createElement('canvas');
+  c.width=w; c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
+  return c.toDataURL('image/jpeg', quality);
+}
+
 function resizeImage(file, maxPx, quality){
   return new Promise((resolve, reject)=>{
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = ()=>{
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxPx/Math.max(img.width,img.height));
-      const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
-      const c = document.createElement('canvas');
-      c.width=w; c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      resolve(c.toDataURL('image/jpeg', quality));
+    // Try FileReader first (works for JPEG/camera on iOS)
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const img = new Image();
+      img.onload = ()=> resolve(drawImageToJpeg(img, maxPx, quality));
+      img.onerror = ()=>{
+        // FileReader loaded but img failed (HEIC) — fallback to blob URL
+        const blobUrl = URL.createObjectURL(file);
+        const img2 = new Image();
+        img2.onload = ()=>{ URL.revokeObjectURL(blobUrl); resolve(drawImageToJpeg(img2, maxPx, quality)); };
+        img2.onerror = ()=>{ URL.revokeObjectURL(blobUrl); reject(new Error('no se pudo cargar la imagen')); };
+        img2.src = blobUrl;
+      };
+      img.src = ev.target.result;
     };
-    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('image load failed')); };
-    img.src = url;
+    reader.onerror = ()=>{
+      // FileReader failed — try blob URL directly
+      const blobUrl = URL.createObjectURL(file);
+      const img3 = new Image();
+      img3.onload = ()=>{ URL.revokeObjectURL(blobUrl); resolve(drawImageToJpeg(img3, maxPx, quality)); };
+      img3.onerror = ()=>{ URL.revokeObjectURL(blobUrl); reject(new Error('no se pudo cargar la imagen')); };
+      img3.src = blobUrl;
+    };
+    reader.readAsDataURL(file);
   });
 }
 
