@@ -1446,21 +1446,20 @@ function renderPhotoLog(){
 }
 
 function resizeImage(file, maxPx, quality){
-  return new Promise(resolve=>{
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      const img = new Image();
-      img.onload = ()=>{
-        const scale = Math.min(1, maxPx/Math.max(img.width,img.height));
-        const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
-        const c = document.createElement('canvas');
-        c.width=w; c.height=h;
-        c.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(c.toDataURL('image/jpeg', quality));
-      };
-      img.src = ev.target.result;
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxPx/Math.max(img.width,img.height));
+      const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+      const c = document.createElement('canvas');
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg', quality));
     };
-    reader.readAsDataURL(file);
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
   });
 }
 
@@ -1476,10 +1475,18 @@ document.getElementById('food-input').addEventListener('change', async function(
   resultEl.innerHTML='';
 
   // Resize: 800px for sending, 120px for thumbnail
-  const [dataUrl, thumb] = await Promise.all([
-    resizeImage(file, 800, 0.85),
-    resizeImage(file, 120, 0.7)
-  ]);
+  let dataUrl, thumb;
+  try {
+    [dataUrl, thumb] = await Promise.all([
+      resizeImage(file, 800, 0.85),
+      resizeImage(file, 120, 0.7)
+    ]);
+  } catch(e) {
+    analyzing.style.display='none';
+    resultEl.style.display='block';
+    resultEl.innerHTML='<p style="color:var(--danger)">No se pudo cargar la imagen. Prueba a hacer una foto directamente.</p>';
+    return;
+  }
 
   const base64 = dataUrl.split(',')[1];
   const mimeType = 'image/jpeg';
