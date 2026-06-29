@@ -1500,6 +1500,11 @@ document.getElementById('food-input').addEventListener('change', async function(
 
   analyzing.style.display='none';
 
+  if(result.error==='quota_exceeded'){
+    resultEl.style.display='block';
+    resultEl.innerHTML='<div style="color:var(--t-war);font-size:13px;padding:12px">⚠️ Cuota diaria de análisis agotada. Se restablece mañana, o contacta para actualizar la clave.</div>';
+    return;
+  }
   if(result.error==='no_food'){
     resultEl.style.display='block';
     resultEl.innerHTML='<div style="color:var(--tm);font-size:13px;padding:12px">No se ha detectado comida en la imagen.</div>';

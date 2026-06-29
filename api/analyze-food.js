@@ -44,6 +44,9 @@ Si no puedes identificar comida ni etiqueta nutricional, devuelve {"error":"no_f
 
   if (!r.ok) {
     const err = await r.text();
+    if (r.status === 429) {
+      return res.status(429).json({ error: 'quota_exceeded' });
+    }
     return res.status(500).json({ error: 'api_error', detail: err });
   }
 
