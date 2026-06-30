@@ -687,6 +687,8 @@ html, body {
       </div>
     </div>
 
+    <button id="notif-btn" onclick="activarNotifs()" style="display:none;width:100%;margin:0 0 10px;padding:11px;background:var(--acc);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer">🔔 Activar recordatorios</button>
+
     <div class="sec">🔴 Lumbar &amp; Postura — Prioridad</div>
     <div id="r14" class="ex-row" onclick="openEx(14)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_225433_62ef9bfc-384e-48b9-b36d-d96ae9cf68d8_min.webp" alt="Hip Flexor Stretch"><div class="einfo"><div class="ename">Hip Flexor Stretch</div><div class="emeta">45 s c/lado × 3 · Crítico lordosis</div></div><span id="a14" class="earr">›</span></div>
     <div id="r15" class="ex-row" onclick="openEx(15)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_225437_74f5582b-68b3-4932-84b6-0023150e578e_min.webp" alt="Glute Bridge"><div class="einfo"><div class="ename">Glute Bridge</div><div class="emeta">12 reps × 3 · Activa glúteo</div></div><span id="a15" class="earr">›</span></div>
@@ -1311,6 +1313,20 @@ function closeEx(){
 
 function clearT(){ if(tIv) clearInterval(tIv); tIv=null; tRun=false; }
 
+function playBeep(){
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [0,0.15,0.3].forEach(t=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=880; o.type='sine';
+      g.gain.setValueAtTime(0.4, ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+t+0.12);
+      o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+0.12);
+    });
+  } catch(e){}
+}
+
 function startT(sec){
   tSec=sec; tTotal=sec; tRun=true;
   document.getElementById('t-serie').textContent='Serie '+curS+' de '+totS;
@@ -1318,7 +1334,12 @@ function startT(sec){
   updT();
   tIv=setInterval(()=>{
     if(tSec>0){ tSec--; updT(); }
-    else{ clearT(); document.getElementById('t-toggle').textContent='✓ Lista'; }
+    else{
+      clearT();
+      playBeep();
+      const btn=document.getElementById('t-toggle');
+      btn.textContent = curS<totS ? '▶ Iniciar serie '+(curS+1) : '✓ Completado';
+    }
   },1000);
 }
 
@@ -1329,14 +1350,22 @@ function updT(){
 }
 
 function toggleTimer(){
-  if(!tRun && tSec===0) return;
+  if(!tRun && tSec===0){
+    if(curS<totS){ nextSerie(); }
+    return;
+  }
   if(tRun){ clearT(); document.getElementById('t-toggle').textContent='▶ Reanudar'; }
   else{
     tRun=true;
     document.getElementById('t-toggle').textContent='⏸ Pausa';
     tIv=setInterval(()=>{
       if(tSec>0){ tSec--; updT(); }
-      else{ clearT(); document.getElementById('t-toggle').textContent='✓ Lista'; }
+      else{
+        clearT();
+        playBeep();
+        const btn=document.getElementById('t-toggle');
+        btn.textContent = curS<totS ? '▶ Iniciar serie '+(curS+1) : '✓ Completado';
+      }
     },1000);
   }
 }
@@ -1387,20 +1416,43 @@ const VAPID_PUBLIC = 'BCCCr2I11Vv0T_VhAcbS-ZGCtR4zv_vGDP1fhl6oLtQWrVoGmPtkXmWVbc
 
 async function initPush() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  const reg = await navigator.serviceWorker.register('/sw.js');
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') return;
-  let sub = await reg.pushManager.getSubscription();
-  if (!sub) {
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
-    });
-    await fetch('/api/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sub)
-    });
+  await navigator.serviceWorker.register('/sw.js');
+  // Show button if permission not yet granted (iOS needs user gesture)
+  if (Notification.permission !== 'granted') {
+    document.getElementById('notif-btn').style.display = 'block';
+  }
+}
+
+async function activarNotifs() {
+  const btn = document.getElementById('notif-btn');
+  btn.textContent = 'Activando…';
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      btn.textContent = '🔔 Activar recordatorios';
+      btn.disabled = false;
+      return;
+    }
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub)
+      });
+    }
+    btn.textContent = '✓ Recordatorios activados';
+    btn.style.background = 'var(--ok, #22c55e)';
+    setTimeout(() => { btn.style.display = 'none'; }, 2500);
+  } catch(e) {
+    btn.textContent = '🔔 Activar recordatorios';
+    btn.disabled = false;
   }
 }
 
@@ -1445,66 +1497,73 @@ function renderPhotoLog(){
     + '</div>';
 }
 
-function drawImageToJpeg(img, maxPx, quality){
-  const scale = Math.min(1, maxPx/Math.max(img.width||1, img.height||1));
-  const w = Math.round((img.width||1)*scale), h = Math.round((img.height||1)*scale);
+function canvasFromBitmap(bmp, maxPx, quality){
+  const scale = Math.min(1, maxPx/Math.max(bmp.width||1, bmp.height||1));
+  const w = Math.round((bmp.width||1)*scale), h = Math.round((bmp.height||1)*scale);
   const c = document.createElement('canvas');
   c.width=w; c.height=h;
-  c.getContext('2d').drawImage(img,0,0,w,h);
+  c.getContext('2d').drawImage(bmp,0,0,w,h);
   return c.toDataURL('image/jpeg', quality);
 }
 
-function resizeImage(file, maxPx, quality){
+async function resizeImage(file, maxPx, quality){
+  // 1. createImageBitmap — nativo iOS, soporta HEIC y JPEG
+  if(typeof createImageBitmap !== 'undefined'){
+    try{
+      const bmp = await createImageBitmap(file);
+      const result = canvasFromBitmap(bmp, maxPx, quality);
+      bmp.close && bmp.close();
+      return result;
+    } catch(e){}
+  }
+  // 2. blob URL → <img> → canvas
   return new Promise((resolve, reject)=>{
-    // Try FileReader first (works for JPEG/camera on iOS)
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      const img = new Image();
-      img.onload = ()=> resolve(drawImageToJpeg(img, maxPx, quality));
-      img.onerror = ()=>{
-        // FileReader loaded but img failed (HEIC) — fallback to blob URL
-        const blobUrl = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{ URL.revokeObjectURL(url); resolve(canvasFromBitmap(img, maxPx, quality)); };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      // 3. FileReader → <img> → canvas
+      const reader = new FileReader();
+      reader.onload = ev=>{
         const img2 = new Image();
-        img2.onload = ()=>{ URL.revokeObjectURL(blobUrl); resolve(drawImageToJpeg(img2, maxPx, quality)); };
-        img2.onerror = ()=>{ URL.revokeObjectURL(blobUrl); reject(new Error('no se pudo cargar la imagen')); };
-        img2.src = blobUrl;
+        img2.onload = ()=> resolve(canvasFromBitmap(img2, maxPx, quality));
+        img2.onerror = ()=> reject(new Error('no se pudo cargar la imagen'));
+        img2.src = ev.target.result;
       };
-      img.src = ev.target.result;
+      reader.onerror = ()=> reject(new Error('no se pudo leer el archivo'));
+      reader.readAsDataURL(file);
     };
-    reader.onerror = ()=>{
-      // FileReader failed — try blob URL directly
-      const blobUrl = URL.createObjectURL(file);
-      const img3 = new Image();
-      img3.onload = ()=>{ URL.revokeObjectURL(blobUrl); resolve(drawImageToJpeg(img3, maxPx, quality)); };
-      img3.onerror = ()=>{ URL.revokeObjectURL(blobUrl); reject(new Error('no se pudo cargar la imagen')); };
-      img3.src = blobUrl;
-    };
-    reader.readAsDataURL(file);
+    img.src = url;
   });
 }
 
 document.getElementById('food-input').addEventListener('change', async function(){
   const file = this.files[0];
   if(!file) return;
-  this.value='';
 
   const analyzing = document.getElementById('food-analyzing');
   const resultEl  = document.getElementById('food-result');
   analyzing.style.display='block';
+  analyzing.textContent='Procesando imagen…';
   resultEl.style.display='none';
   resultEl.innerHTML='';
+
+  this.value='';
 
   // Resize: 800px for sending, 120px for thumbnail
   let dataUrl, thumb;
   try {
+    analyzing.textContent='Comprimiendo imagen…';
     [dataUrl, thumb] = await Promise.all([
       resizeImage(file, 800, 0.85),
       resizeImage(file, 120, 0.7)
     ]);
+    analyzing.textContent='Analizando con IA…';
   } catch(e) {
     analyzing.style.display='none';
     resultEl.style.display='block';
-    resultEl.innerHTML='<p style="color:var(--danger)">No se pudo cargar la imagen. Prueba a hacer una foto directamente.</p>';
+    resultEl.innerHTML='<p style="color:var(--danger);padding:8px">No se pudo cargar la imagen ('+e.message+'). Prueba otra foto.</p>';
     return;
   }
 
