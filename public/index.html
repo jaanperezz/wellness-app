@@ -1243,34 +1243,6 @@ function updateHome(){
   btn500.className='wbtn'; btn500.textContent='+500ml'; btn500.onclick=()=>addAgua(0.5);
   ab.append(btnMinus,lblAgua,btn250,btn500);
 
-  // Daily task checklist
-  const dt=document.getElementById('daily-tasks');
-  dt.innerHTML='';
-  const card=document.createElement('div');
-  card.className='card';
-  card.style.padding='0';
-  const dailyDone = RUTINA.filter((ex,i)=>ex.freq<=24&&!!localStorage.getItem('ex_'+i)).length;
-  const dailyTotal = RUTINA.filter(ex=>ex.freq<=24).length;
-  const allCompleted = dailyDone===dailyTotal;
-  if(allCompleted){
-    dt.innerHTML='<div class="daily-complete-banner">✓ Todos los ejercicios del día completados</div>';
-  } else {
-    RUTINA.forEach((ex,i)=>{
-      const isDone=!!localStorage.getItem('ex_'+i);
-      const isWeekly=ex.freq>24;
-      const row=document.createElement('div');
-      row.className='daily-task-row';
-      row.style.cursor='pointer';
-      const checkCls='dtask-check'+(isWeekly?' freq-week':'')+(isDone?' done':'');
-      row.innerHTML='<div class="'+checkCls+'">'+(isDone?'✓':'')+'</div>'
-        +'<div class="dtask-info"><div class="dtask-name">'+ex.name+'</div>'
-        +'<div class="dtask-freq">'+(isWeekly?'2× sem':'Diario')+' · '+ex.tag+'</div></div>';
-      row.onclick=()=>openEx(i);
-      card.appendChild(row);
-    });
-    dt.appendChild(card);
-  }
-
   // Wellness Score
   const sleepRaw = JSON.parse(localStorage.getItem('sleep_'+todayKey())||'null');
   const sleepPct = sleepRaw ? Math.min(sleepRaw.h/8,1) : 0;
@@ -1288,22 +1260,6 @@ function updateHome(){
   updateHabitDisplay();
   updateWeeklyChallenge();
   renderMonthlyChallenges();
-
-  // Pending list (only non-done daily exercises)
-  const pl=document.getElementById('pending-list');
-  pl.innerHTML='';
-  RUTINA.forEach((ex,i)=>{
-    if(ex.freq<=24&&!localStorage.getItem('ex_'+i)){
-      const row=document.createElement('div');
-      row.className='ex-row';
-      row.innerHTML='<img class="ethumb" src="'+ex.img+'" alt="'+ex.name+'"><div class="einfo"><div class="ename">'+ex.name+'</div><div class="emeta">'+ex.tag+'</div></div><span class="earr">›</span>';
-      row.onclick=()=>openEx(i);
-      pl.appendChild(row);
-    }
-  });
-  if(!pl.children.length){
-    pl.innerHTML='<div class="pending-empty">Nada pendiente — buen trabajo 💪</div>';
-  }
 }
 
 function setRing(id,pct){
@@ -1565,6 +1521,19 @@ function tick(){
   const h=n.getHours(),m=n.getMinutes();
   document.getElementById('clock').textContent=h+':'+(m<10?'0':'')+m;
 }
+
+const CHALLENGES=[
+  {text:'Hip Flexor Stretch — 5 sesiones esta semana',key:'ex_cnt_14',target:5},
+  {text:'2.5L de agua al día esta semana',key:'agua_target',target:7},
+  {text:'Glute Bridge — 5 sesiones esta semana',key:'ex_cnt_15',target:5},
+  {text:'7 días seguidos de Chin Tuck',key:'ex_cnt_3',target:7},
+  {text:'Bird Dog — 5 sesiones esta semana',key:'ex_cnt_2',target:5},
+];
+const MONTHLY_CHALLENGES=[
+  {title:'Desconexión digital',desc:'Borra las redes sociales del móvil una semana entera y date el espacio para estar contigo mismo.',type:'toggle'},
+  {title:'Cena a solas',desc:'Ve a un restaurante solo, pide lo que te apetezca y disfrútalo sin mirar el móvil ni una sola vez.',type:'toggle'},
+  {title:'Sin dar explicaciones',desc:'Practica decir que no sin justificarte — solo "no, gracias".',type:'counter',target:3},
+];
 
 tick(); updateHome(); buildNutricion(); refreshRutina();
 setInterval(tick,30000); setInterval(refreshRutina,60000);
@@ -2098,13 +2067,6 @@ function showBadges(){
 function closeBadges(){document.getElementById('badges-overlay').style.display='none';}
 
 // ── Feature 9: Weekly challenge ───────────────────────────────
-const CHALLENGES=[
-  {text:'Hip Flexor Stretch — 5 sesiones esta semana',key:'ex_cnt_14',target:5},
-  {text:'2.5L de agua al día esta semana',key:'agua_target',target:7},
-  {text:'Glute Bridge — 5 sesiones esta semana',key:'ex_cnt_15',target:5},
-  {text:'7 días seguidos de Chin Tuck',key:'ex_cnt_3',target:7},
-  {text:'Bird Dog — 5 sesiones esta semana',key:'ex_cnt_2',target:5},
-];
 function updateWeeklyChallenge(){
   const week=isoWeek(new Date());
   const c=CHALLENGES[week%CHALLENGES.length];
@@ -2115,11 +2077,6 @@ function updateWeeklyChallenge(){
 }
 
 // ── Feature 9b: Monthly challenges ────────────────────────────
-const MONTHLY_CHALLENGES=[
-  {title:'Desconexión digital',desc:'Borra las redes sociales del móvil una semana entera y date el espacio para estar contigo mismo.',type:'toggle'},
-  {title:'Cena a solas',desc:'Ve a un restaurante solo, pide lo que te apetezca y disfrútalo sin mirar el móvil ni una sola vez.',type:'toggle'},
-  {title:'Sin dar explicaciones',desc:'Practica decir que no sin justificarte — solo "no, gracias".',type:'counter',target:3},
-];
 function monthlyKey(i){
   const now=new Date();
   return 'monthly_'+i+'_'+now.getFullYear()+'-'+(now.getMonth()+1);
