@@ -1127,7 +1127,7 @@ const SUPPS = [
 let cur=null, tSec=0, tTotal=0, tRun=false, tIv=null, curS=1, totS=1;
 let agua=parseFloat(localStorage.getItem('agua')||'0');
 let _activeMealSlot=null;
-let _pendingFoods=[], _pendingThumb=null;
+let _pendingFoods=[], _pendingThumb=null, _editingFoodIndex=null;
 
 function todayKey(){ return new Date().toDateString(); }
 function dayKey(d){ return 'done_day_'+d.toDateString(); }
@@ -1727,6 +1727,7 @@ document.getElementById('food-input').addEventListener('change', async function(
   // Build result card
   _pendingFoods = result.foods||[];
   _pendingThumb = thumb;
+  _editingFoodIndex = null;
   resultEl.style.display='block';
   renderFoodResult();
 });
@@ -1734,15 +1735,22 @@ document.getElementById('food-input').addEventListener('change', async function(
 function renderFoodResult(){
   const resultEl = document.getElementById('food-result');
   const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
+  const escAttr = s => (s||'').replace(/"/g,'&quot;');
   resultEl.innerHTML=`
     <div class="food-result">
-      <div class="food-result-header">Detectado — toca ✕ para quitar o añade lo que falta</div>
+      <div class="food-result-header">Detectado — toca ✏️ para corregir, ✕ para quitar, o añade lo que falta</div>
       <div id="pending-foods-list">
-        ${_pendingFoods.map((f,i)=>`
+        ${_pendingFoods.map((f,i)=> i===_editingFoodIndex ? `
+          <div class="food-item-row" style="gap:8px">
+            <input id="edit-food-input" type="text" value="${escAttr(f.name)}" onkeypress="if(event.key==='Enter')saveEditFood(${i})" style="flex:1;padding:7px 9px;border-radius:8px;border:1px solid var(--bd);background:var(--s0);color:var(--tp);font-size:var(--fs-md);font-family:-apple-system,sans-serif">
+            <button onclick="saveEditFood(${i})" style="background:var(--fill-acc);border:none;color:#fff;font-size:var(--fs-base);cursor:pointer;padding:6px 10px;border-radius:6px;min-width:36px;min-height:36px">✓</button>
+            <button onclick="cancelEditFood()" style="background:var(--s1);border:none;color:var(--ts);font-size:var(--fs-base);cursor:pointer;padding:6px 10px;border-radius:6px;min-width:36px;min-height:36px">✕</button>
+          </div>` : `
           <div class="food-item-row">
             <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:var(--fw-regular)">${f.amount||''}</span></span>
             <span style="display:flex;align-items:center;gap:8px">
               <span class="food-item-macros">${f.kcal} kcal</span>
+              <button onclick="startEditFood(${i})" style="background:var(--s1);border:none;color:var(--ts);font-size:var(--fs-base);cursor:pointer;padding:6px 10px;border-radius:6px;line-height:1;min-width:36px;min-height:36px">✏️</button>
               <button onclick="removePendingFood(${i})" style="background:var(--s1);border:none;color:var(--ts);font-size:var(--fs-base);cursor:pointer;padding:6px 10px;border-radius:6px;line-height:1;min-width:36px;min-height:36px">✕</button>
             </span>
           </div>`).join('')}
@@ -1767,6 +1775,36 @@ function renderFoodResult(){
 
 function removePendingFood(i){
   _pendingFoods.splice(i,1);
+  if(_editingFoodIndex===i) _editingFoodIndex=null;
+  renderFoodResult();
+}
+
+function startEditFood(i){
+  _editingFoodIndex=i;
+  renderFoodResult();
+  const input=document.getElementById('edit-food-input');
+  if(input){ input.focus(); input.select(); }
+}
+
+function cancelEditFood(){
+  _editingFoodIndex=null;
+  renderFoodResult();
+}
+
+async function saveEditFood(i){
+  const input=document.getElementById('edit-food-input');
+  const text=input.value.trim();
+  if(!text){ cancelEditFood(); return; }
+  input.disabled=true;
+  try {
+    const r=await fetch('/api/estimate-food',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    const data=await r.json();
+    if(data.name){
+      _pendingFoods[i]=data;
+      addFoodHistory(data.name);
+    }
+  } catch(e){}
+  _editingFoodIndex=null;
   renderFoodResult();
 }
 
@@ -1795,7 +1833,7 @@ function confirmFood(){
   savePhotoLog(now, log);
   document.getElementById('food-result').style.display='none';
   document.getElementById('food-result').innerHTML='';
-  _pendingFoods=[]; _pendingThumb=null;
+  _pendingFoods=[]; _pendingThumb=null; _editingFoodIndex=null;
   renderPhotoLog();
   updateMacros();
 }
