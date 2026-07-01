@@ -1127,7 +1127,7 @@ const SUPPS = [
 let cur=null, tSec=0, tTotal=0, tRun=false, tIv=null, curS=1, totS=1;
 let agua=parseFloat(localStorage.getItem('agua')||'0');
 let _activeMealSlot=null;
-let _pendingFoods=[], _pendingThumb=null, _editingFoodIndex=null;
+let _pendingFoods=[], _pendingThumb=null, _editingFoodIndex=null, _editingLogIndex=null;
 
 function todayKey(){ return new Date().toDateString(); }
 function dayKey(d){ return 'done_day_'+d.toDateString(); }
@@ -1610,9 +1610,9 @@ function renderPhotoLog(){
   const el = document.getElementById('photo-log-list');
   if(!el) return;
   if(!log.length){ el.innerHTML=''; return; }
-  el.innerHTML = '<div class="card" style="margin-bottom:12px;padding:0"><div style="padding:12px 12px 4px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--tm);text-transform:uppercase;letter-spacing:var(--ls-wide)">Registrado hoy</div>'
-    + log.map(e=>`
-      <div class="photo-log-entry" style="padding:10px 12px">
+  el.innerHTML = '<div class="card" style="margin-bottom:12px;padding:0"><div style="padding:12px 12px 4px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--tm);text-transform:uppercase;letter-spacing:var(--ls-wide)">Registrado hoy — toca para editar</div>'
+    + log.map((e,i)=>`
+      <div class="photo-log-entry" style="padding:10px 12px;cursor:pointer" onclick="editLoggedFood(${i})">
         <img class="photo-log-thumb" src="${e.thumb}" alt="comida">
         <div class="photo-log-info">
           <div class="photo-log-title">${e.foods.map(f=>f.name).join(', ')}</div>
@@ -1621,6 +1621,26 @@ function renderPhotoLog(){
         <div class="photo-log-time">${e.time}</div>
       </div>`).join('')
     + '</div>';
+}
+
+function editLoggedFood(i){
+  const log = getPhotoLog(new Date());
+  const entry = log[i];
+  if(!entry) return;
+  _pendingFoods = entry.foods.map(f=>({...f}));
+  _pendingThumb = entry.thumb;
+  _editingFoodIndex = null;
+  _editingLogIndex = i;
+  const resultEl = document.getElementById('food-result');
+  resultEl.style.display='block';
+  renderFoodResult();
+  resultEl.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closeFoodResult(){
+  document.getElementById('food-result').style.display='none';
+  document.getElementById('food-result').innerHTML='';
+  _pendingFoods=[]; _pendingThumb=null; _editingFoodIndex=null; _editingLogIndex=null;
 }
 
 function canvasFromBitmap(bmp, maxPx, quality){
@@ -1728,6 +1748,7 @@ document.getElementById('food-input').addEventListener('change', async function(
   _pendingFoods = result.foods||[];
   _pendingThumb = thumb;
   _editingFoodIndex = null;
+  _editingLogIndex = null;
   resultEl.style.display='block';
   renderFoodResult();
 });
@@ -1736,9 +1757,10 @@ function renderFoodResult(){
   const resultEl = document.getElementById('food-result');
   const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
   const escAttr = s => (s||'').replace(/"/g,'&quot;');
+  const editing = _editingLogIndex!==null;
   resultEl.innerHTML=`
     <div class="food-result">
-      <div class="food-result-header">Detectado — toca ✏️ para corregir, ✕ para quitar, o añade lo que falta</div>
+      <div class="food-result-header">${editing?'Editando registro — cambia lo que necesites':'Detectado — toca ✏️ para corregir, ✕ para quitar, o añade lo que falta'}</div>
       <div id="pending-foods-list">
         ${_pendingFoods.map((f,i)=> i===_editingFoodIndex ? `
           <div class="food-item-row" style="gap:8px">
@@ -1767,9 +1789,10 @@ function renderFoodResult(){
         <div class="food-total-cell"><div class="food-total-val" style="color:#ba7517">${total.fat_g}g</div><div class="food-total-lbl">grasas</div></div>
       </div>
       <div class="food-actions">
-        <button class="btn-confirm" onclick="confirmFood()">Añadir al registro</button>
-        <button class="btn-cancel" onclick="document.getElementById('food-result').style.display='none'">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmFood()">${editing?'Guardar cambios':'Añadir al registro'}</button>
+        <button class="btn-cancel" onclick="closeFoodResult()">Cancelar</button>
       </div>
+      ${editing?'<button onclick="deleteLoggedFood()" style="width:100%;margin-top:8px;padding:9px;background:none;border:none;color:var(--t-war,#b91c1c);font-size:var(--fs-sm);cursor:pointer">Eliminar este registro</button>':''}
     </div>`;
 }
 
@@ -1825,17 +1848,38 @@ async function addPendingFood(){
 }
 
 function confirmFood(){
-  const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
   const now = new Date();
-  const time = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   const log = getPhotoLog(now);
-  log.push({foods:_pendingFoods, total, thumb:_pendingThumb, time});
+  if(_editingLogIndex!==null){
+    if(!_pendingFoods.length){
+      log.splice(_editingLogIndex,1);
+    } else {
+      const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
+      const existing = log[_editingLogIndex];
+      log[_editingLogIndex] = {foods:_pendingFoods, total, thumb:_pendingThumb, time: existing?existing.time:now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})};
+    }
+  } else {
+    const total = _pendingFoods.reduce((a,f)=>({kcal:a.kcal+(f.kcal||0),protein_g:a.protein_g+(f.protein_g||0),carbs_g:a.carbs_g+(f.carbs_g||0),fat_g:a.fat_g+(f.fat_g||0)}),{kcal:0,protein_g:0,carbs_g:0,fat_g:0});
+    const time = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    log.push({foods:_pendingFoods, total, thumb:_pendingThumb, time});
+  }
   savePhotoLog(now, log);
-  document.getElementById('food-result').style.display='none';
-  document.getElementById('food-result').innerHTML='';
-  _pendingFoods=[]; _pendingThumb=null; _editingFoodIndex=null;
+  closeFoodResult();
   renderPhotoLog();
   updateMacros();
+  updateHome();
+}
+
+function deleteLoggedFood(){
+  if(_editingLogIndex===null) return;
+  const now = new Date();
+  const log = getPhotoLog(now);
+  log.splice(_editingLogIndex,1);
+  savePhotoLog(now, log);
+  closeFoodResult();
+  renderPhotoLog();
+  updateMacros();
+  updateHome();
 }
 
 // ── Weekly report ────────────────────────────────────────────
