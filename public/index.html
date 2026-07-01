@@ -29,6 +29,31 @@
   --t-war: #854f0b;
   --fill-acc: #3a9e6e;
   --radius: 12px;
+
+  /* Type scale */
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fs-2xl: 40px;
+  --fs-display: 56px;
+
+  /* Weights */
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* Tracking */
+  --ls-tight: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.08em;
+
+  /* Spacing */
+  --pad-card: 16px;
+  --gap-row: 10px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -73,11 +98,11 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px 6px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--tm);
   flex-shrink: 0;
 }
-.sb-title { font-size: 13px; font-weight: 600; color: var(--tp); }
+.sb-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--tp); }
 
 /* TABS */
 .tabs {
@@ -90,7 +115,7 @@ html, body {
   flex: 1;
   padding: 10px 4px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--tm);
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -99,7 +124,7 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.tab.active { color: var(--tp); border-bottom-color: var(--tp); font-weight: 500; }
+.tab.active { color: var(--tp); border-bottom-color: var(--tp); font-weight: var(--fw-medium); }
 
 /* SCROLL */
 .scroll {
@@ -113,12 +138,22 @@ html, body {
 
 /* TYPOGRAPHY */
 .sec {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
   color: var(--tm);
   text-transform: uppercase;
-  letter-spacing: .08em;
-  margin: 14px 0 8px;
+  letter-spacing: var(--ls-wide);
+  margin: 20px 0 10px;
+}
+.sec.priority::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dc2626;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 .sec:first-child { margin-top: 2px; }
 
@@ -164,8 +199,8 @@ html, body {
 }
 .einfo { flex: 1; min-width: 0; }
 .ename {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--tp);
   margin-bottom: 2px;
   white-space: nowrap;
@@ -173,7 +208,7 @@ html, body {
   text-overflow: ellipsis;
 }
 .emeta {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--tm);
   white-space: nowrap;
   overflow: hidden;
@@ -211,7 +246,7 @@ html, body {
 
 /* PENDING LIST */
 .pending-empty {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--tm);
   text-align: center;
   padding: 20px 0;
@@ -230,8 +265,8 @@ html, body {
   align-items: baseline;
   margin-bottom: 3px;
 }
-.macro-label { font-size: 11px; font-weight: 500; }
-.macro-val { font-size: 11px; color: var(--tp); flex-shrink: 0; margin-left: 4px; }
+.macro-label { font-size: var(--fs-xs); font-weight: var(--fw-medium); }
+.macro-val { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--tp); flex-shrink: 0; margin-left: 4px; font-variant-numeric: tabular-nums; }
 .macro-bar {
   height: 4px;
   border-radius: 99px;
@@ -262,29 +297,29 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: transparent;
   transition: all .15s;
 }
 .mcb.on { background: var(--tp); border-color: var(--tp); color: var(--s2); }
 .meal-info { flex: 1; min-width: 0; }
 .meal-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--tp);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .meal-sub {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--tm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 1px;
 }
-.meal-kcal { font-size: 12px; color: var(--ts); font-weight: 500; flex-shrink: 0; margin-left: 4px; }
+.meal-kcal { font-size: var(--fs-xs); color: var(--ts); font-weight: var(--fw-medium); flex-shrink: 0; margin-left: 4px; font-variant-numeric: tabular-nums; }
 
 /* SUPPLEMENTS */
 .supp-row {
@@ -313,22 +348,22 @@ html, body {
 }
 .scb.on { background: var(--tp); border-color: var(--tp); color: var(--s2); }
 .supp-name {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--tp);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.supp-dose { font-size: 10px; color: var(--tm); margin-top: 1px; }
+.supp-dose { font-size: var(--fs-xs); color: var(--tm); margin-top: 1px; }
 
 /* PILLS */
 .pill {
   display: inline-block;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 3px 9px;
   border-radius: 99px;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   background: var(--bg-acc);
   color: var(--t-acc);
   margin-bottom: 10px;
@@ -345,7 +380,7 @@ html, body {
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   margin: 0 auto 3px;
 }
 .day-num { font-size: 10px; color: var(--tm); }
@@ -370,26 +405,26 @@ html, body {
 }
 .erow-info { flex: 1; min-width: 0; }
 .erow-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--tp);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.erow-meta { font-size: 11px; color: var(--tm); margin-top: 1px; }
+.erow-meta { font-size: var(--fs-xs); color: var(--tm); margin-top: 1px; }
 .warn-box {
   background: var(--bg-war);
   border: 0.5px solid rgba(133,79,11,.25);
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--t-war);
   line-height: 1.5;
   margin-bottom: 10px;
 }
 .calent-list {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--ts);
   line-height: 2;
 }
@@ -418,15 +453,15 @@ html, body {
   border: none;
   cursor: pointer;
   color: var(--tp);
-  font-size: 20px;
+  font-size: var(--fs-lg);
   padding: 0;
   line-height: 1;
   flex-shrink: 0;
   min-width: 28px;
 }
 .ov-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   color: var(--tp);
   flex: 1;
   min-width: 0;
@@ -459,10 +494,10 @@ html, body {
   margin-bottom: 14px;
 }
 .sg-col { text-align: center; }
-.sg-val { font-size: 20px; font-weight: 500; color: var(--tp); }
-.sg-lbl { font-size: 10px; color: var(--tm); margin-top: 2px; }
+.sg-val { font-size: var(--fs-xl); font-weight: var(--fw-light); color: var(--tp); letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.sg-lbl { font-size: var(--fs-xs); color: var(--tm); margin-top: 2px; }
 .ov-desc {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--ts);
   line-height: 1.65;
   margin-bottom: 12px;
@@ -473,7 +508,7 @@ html, body {
   gap: 10px;
   padding: 7px 0;
   border-bottom: 0.5px solid var(--bd);
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--ts);
   line-height: 1.5;
 }
@@ -488,8 +523,8 @@ html, body {
   margin-bottom: 14px;
   text-align: center;
 }
-.timer-num { font-size: 40px; font-weight: 300; color: var(--tp); letter-spacing: -1px; margin: 8px 0 4px; }
-.timer-serie { font-size: 12px; color: var(--tm); margin-bottom: 14px; }
+.timer-num { font-size: var(--fs-2xl); font-weight: var(--fw-light); color: var(--tp); letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; margin: 8px 0 4px; }
+.timer-serie { font-size: var(--fs-xs); color: var(--tm); margin-bottom: 14px; }
 .timer-btns { display: flex; gap: 8px; }
 .tbtn {
   flex: 1;
@@ -497,8 +532,8 @@ html, body {
   border-radius: 8px;
   border: 0.5px solid var(--bds);
   background: var(--s2);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   color: var(--tp);
   font-family: -apple-system, sans-serif;
@@ -515,8 +550,8 @@ html, body {
   border: none;
   background: var(--tp);
   color: var(--s2);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   font-family: -apple-system, sans-serif;
   transition: transform .1s;
@@ -524,7 +559,7 @@ html, body {
 }
 .done-btn:active { transform: scale(.98); }
 .done-btn.done { background: var(--bg-suc); color: var(--t-suc); cursor: default; }
-.lock-msg { font-size: 12px; color: var(--tm); text-align: center; margin-top: 9px; }
+.lock-msg { font-size: var(--fs-xs); color: var(--tm); text-align: center; margin-top: 9px; }
 
 /* TODAY HEADER */
 .today-header {
@@ -533,11 +568,11 @@ html, body {
   align-items: flex-start;
   margin-bottom: 14px;
 }
-.today-greeting { font-size: 20px; font-weight: 500; color: var(--tp); }
-.today-date { font-size: 12px; color: var(--tm); margin-top: 2px; }
+.today-greeting { font-size: var(--fs-lg); font-weight: var(--fw-medium); color: var(--tp); }
+.today-date { font-size: var(--fs-xs); color: var(--tm); margin-top: 2px; }
 .streak-block { text-align: right; }
-.streak-num { font-size: 36px; font-weight: 500; color: var(--tp); line-height: 1; }
-.streak-lbl { font-size: 10px; color: var(--tm); }
+.streak-num { font-size: var(--fs-2xl); font-weight: var(--fw-light); color: var(--tp); line-height: 1; letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.streak-lbl { font-size: var(--fs-xs); color: var(--tm); }
 .week-strip { display: flex; gap: 5px; justify-content: flex-end; margin-top: 6px; }
 .wday { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .wday-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bd); }
@@ -546,114 +581,114 @@ html, body {
 .wday-lbl { font-size: 8px; color: var(--tm); }
 .daily-task-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--bd); }
 .daily-task-row:last-child { border-bottom: none; }
-.dtask-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bd); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .2s; }
+.dtask-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bd); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-xs); transition: all .2s; }
 .dtask-check.done { background: var(--fill-acc); border-color: var(--fill-acc); color: #fff; }
 .dtask-check.freq-week { border-style: dashed; }
 .dtask-check.freq-week.done { background: #639922; border-color: #639922; }
 .dtask-info { flex: 1; min-width: 0; }
-.dtask-name { font-size: 14px; color: var(--tp); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dtask-freq { font-size: 11px; color: var(--tm); margin-top: 1px; }
+.dtask-name { font-size: var(--fs-base); color: var(--tp); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dtask-freq { font-size: var(--fs-xs); color: var(--tm); margin-top: 1px; }
 /* ── Food photo analyzer ── */
-.photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: var(--tp); color: var(--s0); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 12px; }
+.photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: var(--tp); color: var(--s0); border: none; border-radius: var(--radius); font-size: var(--fs-md); font-weight: var(--fw-medium); cursor: pointer; margin-bottom: 12px; }
 .photo-btn:active { opacity: .85; }
 .photo-btn svg { flex-shrink: 0; }
-.food-result { background: var(--s1); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; }
-.food-result-header { font-size: 12px; font-weight: 500; color: var(--tm); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
-.food-item-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--bd); font-size: 14px; color: var(--tp); }
+.food-result { background: var(--s1); border-radius: var(--radius); padding: var(--pad-card); margin-bottom: 12px; }
+.food-result-header { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--tm); margin-bottom: 8px; text-transform: uppercase; letter-spacing: var(--ls-wide); }
+.food-item-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 0.5px solid var(--bd); font-size: var(--fs-base); color: var(--tp); }
 .food-item-row:last-child { border-bottom: none; }
-.food-item-name { font-weight: 400; }
-.food-item-macros { font-size: 11px; color: var(--tm); }
-.food-total-row { display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bds); }
+.food-item-name { font-weight: var(--fw-regular); }
+.food-item-macros { font-size: var(--fs-xs); color: var(--tm); font-variant-numeric: tabular-nums; }
+.food-total-row { display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--bds); }
 .food-total-cell { flex: 1; text-align: center; }
-.food-total-val { font-size: 16px; font-weight: 500; color: var(--tp); }
-.food-total-lbl { font-size: 10px; color: var(--tm); margin-top: 2px; }
+.food-total-val { font-size: var(--fs-lg); font-weight: var(--fw-light); color: var(--tp); letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.food-total-lbl { font-size: var(--fs-xs); color: var(--tm); margin-top: 2px; }
 .food-actions { display: flex; gap: 8px; margin-top: 10px; }
-.food-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+.food-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: var(--fs-base); font-weight: var(--fw-medium); cursor: pointer; }
 .btn-confirm { background: var(--fill-acc); color: #fff; }
 .btn-cancel { background: var(--bd); color: var(--tp); }
-.photo-log-entry { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+.photo-log-entry { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--bd); }
 .photo-log-entry:last-child { border-bottom: none; }
 .photo-log-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
 .photo-log-info { flex: 1; min-width: 0; }
-.photo-log-title { font-size: 13px; font-weight: 500; color: var(--tp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.photo-log-macros { font-size: 11px; color: var(--tm); margin-top: 2px; }
-.photo-log-time { font-size: 11px; color: var(--tm); flex-shrink: 0; }
-.photo-loading { text-align: center; padding: 24px; color: var(--tm); font-size: 14px; }
+.photo-log-title { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--tp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.photo-log-macros { font-size: var(--fs-xs); color: var(--tm); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.photo-log-time { font-size: var(--fs-xs); color: var(--tm); flex-shrink: 0; }
+.photo-loading { text-align: center; padding: 24px; color: var(--tm); font-size: var(--fs-base); }
 .photo-loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid var(--bd); border-top-color: var(--fill-acc); border-radius: 50%; animation: spin .8s linear infinite; margin-left: 8px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* ── Weekly report modal ── */
 .report-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: flex; align-items: flex-end; }
 .report-sheet { background: var(--s0); border-radius: 20px 20px 0 0; width: 100%; max-height: 88vh; overflow-y: auto; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
 .report-handle { width: 40px; height: 4px; background: var(--bd); border-radius: 2px; margin: 0 auto 16px; }
-.report-title { font-size: 18px; font-weight: 600; color: var(--tp); margin-bottom: 4px; }
-.report-subtitle { font-size: 13px; color: var(--tm); margin-bottom: 20px; }
-.report-day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bd); }
+.report-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--tp); margin-bottom: 4px; }
+.report-subtitle { font-size: var(--fs-sm); color: var(--tm); margin-bottom: 20px; }
+.report-day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--bd); }
 .report-day-row:last-child { border-bottom: none; }
-.report-day-lbl { font-size: 12px; color: var(--tm); width: 28px; flex-shrink: 0; }
+.report-day-lbl { font-size: var(--fs-xs); color: var(--tm); width: 28px; flex-shrink: 0; }
 .report-day-bar-wrap { flex: 1; height: 6px; background: var(--bd); border-radius: 3px; overflow: hidden; }
 .report-day-bar { height: 100%; border-radius: 3px; transition: width .4s; }
-.report-day-kcal { font-size: 12px; color: var(--tp); width: 50px; text-align: right; flex-shrink: 0; }
-.report-assessment { background: var(--s1); border-radius: var(--radius); padding: 14px; margin-top: 16px; font-size: 13px; color: var(--tp); line-height: 1.6; }
-.report-assessment-title { font-weight: 600; color: var(--tp); margin-bottom: 6px; font-size: 14px; }
-.report-stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--bd); font-size: 13px; }
+.report-day-kcal { font-size: var(--fs-xs); color: var(--tp); width: 50px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.report-assessment { background: var(--s1); border-radius: var(--radius); padding: 14px; margin-top: 16px; font-size: var(--fs-sm); color: var(--tp); line-height: 1.6; }
+.report-assessment-title { font-weight: var(--fw-semibold); color: var(--tp); margin-bottom: 6px; font-size: var(--fs-base); }
+.report-stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--bd); font-size: var(--fs-sm); }
 .report-stat-row:last-child { border-bottom: none; }
 .report-stat-lbl { color: var(--tm); }
-.report-stat-val { font-weight: 500; color: var(--tp); }
-.report-close { width: 100%; padding: 14px; background: var(--s1); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500; color: var(--tp); cursor: pointer; margin-top: 16px; }
-.daily-complete-banner { background: var(--bg-suc); color: var(--t-suc); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; font-weight: 500; text-align: center; margin: 0 16px; }
+.report-stat-val { font-weight: var(--fw-medium); color: var(--tp); font-variant-numeric: tabular-nums; }
+.report-close { width: 100%; padding: 14px; background: var(--s1); border: none; border-radius: var(--radius); font-size: var(--fs-md); font-weight: var(--fw-medium); color: var(--tp); cursor: pointer; margin-top: 16px; }
+.daily-complete-banner { background: var(--bg-suc); color: var(--t-suc); border-radius: var(--radius); padding: 12px 16px; font-size: var(--fs-sm); font-weight: var(--fw-medium); text-align: center; margin: 0 16px; }
 /* MEAL SLOTS */
 .slot-row { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:0.5px solid var(--bd); cursor:pointer; transition:background .1s; }
 .slot-row:active { background:var(--s1); }
 .slot-row:last-child { border-bottom:none; }
 .slot-icon { font-size:20px; width:28px; text-align:center; flex-shrink:0; }
 .slot-info { flex:1; min-width:0; }
-.slot-name { font-size:14px; font-weight:500; color:var(--tp); }
-.slot-sub { font-size:11px; color:var(--tm); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.slot-badge { font-size:13px; font-weight:600; color:var(--ts); flex-shrink:0; }
+.slot-name { font-size:var(--fs-base); font-weight:var(--fw-medium); color:var(--tp); }
+.slot-sub { font-size:var(--fs-xs); color:var(--tm); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.slot-badge { font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--ts); flex-shrink:0; font-variant-numeric: tabular-nums; }
 .slot-badge.filled { color:var(--fill-acc); }
 .meal-sheet { background:var(--s0); border-radius:20px 20px 0 0; width:100%; max-height:88vh; overflow-y:auto; padding:20px 0 calc(20px + env(safe-area-inset-bottom)); }
-.meal-option { background:var(--s1); border-radius:var(--radius); padding:12px 14px; margin:0 16px 8px; cursor:pointer; border:2px solid transparent; transition:border-color .15s; }
+.meal-option { background:var(--s1); border-radius:var(--radius); padding:12px 14px; margin:0 16px 8px; cursor:pointer; border:0.5px solid var(--bd); transition:border-color .15s; }
 .meal-option:active { border-color:var(--fill-acc); background:var(--bg-acc); }
-.meal-opt-name { font-size:14px; font-weight:500; color:var(--tp); }
-.meal-opt-items { font-size:11px; color:var(--tm); margin-top:2px; line-height:1.4; }
-.meal-opt-macros { font-size:12px; color:var(--fill-acc); margin-top:6px; font-weight:500; }
+.meal-opt-name { font-size:var(--fs-base); font-weight:var(--fw-medium); color:var(--tp); }
+.meal-opt-items { font-size:var(--fs-xs); color:var(--tm); margin-top:2px; line-height:1.4; }
+.meal-opt-macros { font-size:var(--fs-sm); color:var(--fill-acc); margin-top:6px; font-weight:var(--fw-medium); font-variant-numeric: tabular-nums; }
 /* WATER BUTTONS */
 .agua-btn-row { display:flex; gap:6px; align-items:center; margin-top:4px; flex-wrap:wrap; }
-.wbtn { padding:5px 10px; background:var(--s1); border:0.5px solid var(--bd); border-radius:8px; font-size:12px; cursor:pointer; color:var(--tp); font-family:-apple-system,sans-serif; }
+.wbtn { padding:5px 10px; background:var(--s1); border:0.5px solid var(--bd); border-radius:8px; font-size:var(--fs-sm); cursor:pointer; color:var(--tp); font-family:-apple-system,sans-serif; }
 .wbtn:active { opacity:.7; }
-.agua-amount { font-size:13px; font-weight:600; min-width:42px; text-align:center; color:var(--tp); }
+.agua-amount { font-size:var(--fs-sm); font-weight:var(--fw-semibold); min-width:42px; text-align:center; color:var(--tp); font-variant-numeric: tabular-nums; }
 /* Wellness Score */
-.ws-card{background:linear-gradient(135deg,var(--fill-acc),#2e7d52);border-radius:var(--radius);padding:16px;margin-bottom:12px;color:#fff;display:flex;align-items:center;justify-content:space-between;}
-.ws-score-num{font-size:56px;font-weight:200;line-height:1;letter-spacing:-2px;}
-.ws-score-lbl{font-size:11px;opacity:.8;margin-top:2px;}
+.ws-card{background:var(--s1);border:0.5px solid var(--bd);border-top:2px solid var(--fill-acc);border-radius:var(--radius);padding:var(--pad-card);margin-bottom:12px;color:var(--tp);display:flex;align-items:center;justify-content:space-between;}
+.ws-score-num{font-size:var(--fs-display);font-weight:var(--fw-light);line-height:1;letter-spacing:var(--ls-tight);color:var(--t-acc);font-variant-numeric: tabular-nums;}
+.ws-score-lbl{font-size:var(--fs-xs);color:var(--tm);margin-top:2px;}
 .ws-bars{display:flex;flex-direction:column;gap:5px;min-width:140px;}
-.ws-bar-row{display:flex;align-items:center;gap:6px;font-size:11px;opacity:.9;}
-.ws-bk{flex:1;height:4px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden;}
-.ws-bf{height:100%;background:#fff;border-radius:2px;transition:width .4s;}
+.ws-bar-row{display:flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--ts);}
+.ws-bk{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden;}
+.ws-bf{height:100%;background:var(--fill-acc);border-radius:2px;transition:width .4s;}
 /* Habit card */
 .habit-card{background:var(--s1);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
 .habit-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--bd);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .habit-row:last-child{border-bottom:none;}
-.habit-icon{font-size:18px;flex-shrink:0;}
-.habit-title{font-size:14px;color:var(--tp);flex:1;}
-.habit-val{font-size:12px;color:var(--fill-acc);font-weight:600;}
+.habit-icon{width:6px;height:6px;border-radius:50%;background:var(--tm);flex-shrink:0;}
+.habit-title{font-size:var(--fs-base);color:var(--tp);flex:1;}
+.habit-val{font-size:var(--fs-sm);color:var(--fill-acc);font-weight:var(--fw-semibold);}
 /* Challenge card */
-.challenge-card{background:var(--bg-acc);border-left:3px solid var(--fill-acc);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;}
-.challenge-lbl{font-size:10px;font-weight:700;color:var(--t-acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
-.challenge-txt{font-size:13px;color:var(--tp);line-height:1.4;}
-.challenge-prog{font-size:12px;color:var(--t-acc);margin-top:4px;font-weight:600;}
+.challenge-card{background:var(--s1);border-left:2px solid var(--fill-acc);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;}
+.challenge-lbl{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--t-acc);text-transform:uppercase;letter-spacing:var(--ls-wide);margin-bottom:3px;}
+.challenge-txt{font-size:var(--fs-sm);color:var(--tp);line-height:1.4;}
+.challenge-prog{font-size:var(--fs-sm);color:var(--t-acc);margin-top:4px;font-weight:var(--fw-semibold);font-variant-numeric: tabular-nums;}
 /* Fasting card */
-.fast-card{background:var(--s1);border-radius:var(--radius);padding:16px;margin-bottom:12px;text-align:center;}
-.fast-num{font-size:40px;font-weight:200;color:var(--tp);letter-spacing:-1px;}
-.fast-zone{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin:6px 0 12px;}
+.fast-card{background:var(--s1);border-radius:var(--radius);padding:var(--pad-card);margin-bottom:12px;text-align:center;}
+.fast-num{font-size:var(--fs-2xl);font-weight:var(--fw-light);color:var(--tp);letter-spacing:var(--ls-tight);font-variant-numeric: tabular-nums;}
+.fast-zone{display:inline-block;font-size:var(--fs-xs);font-weight:var(--fw-semibold);padding:3px 10px;border-radius:10px;margin:6px 0 12px;}
 .fast-btn-row{display:flex;gap:8px;}
-.fast-btn{flex:1;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif;}
+.fast-btn{flex:1;padding:10px;border-radius:8px;border:none;font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif;}
 /* Weekly macro chart */
 .chart-day-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.chart-day-lbl{font-size:11px;color:var(--tm);width:18px;flex-shrink:0;}
+.chart-day-lbl{font-size:var(--fs-xs);color:var(--tm);width:18px;flex-shrink:0;}
 .chart-bw{flex:1;height:8px;background:var(--bd);border-radius:4px;overflow:hidden;}
 .chart-bf{height:100%;border-radius:4px;background:var(--fill-acc);transition:width .5s;}
-.chart-kv{font-size:11px;color:var(--tp);width:36px;text-align:right;}
+.chart-kv{font-size:var(--fs-xs);color:var(--tp);width:36px;text-align:right;font-variant-numeric: tabular-nums;}
 </style>
 </head>
 <body>
@@ -661,7 +696,9 @@ html, body {
   <div class="sb">
     <span id="clock">9:41</span>
     <span class="sb-title">Wellness</span>
-    <span id="sb-right" onclick="showBadges()" style="cursor:pointer">🏆</span>
+    <span id="sb-right" onclick="showBadges()" style="cursor:pointer;display:inline-flex" aria-label="Logros">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
+    </span>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="showTab('hoy',this)">Hoy</div>
@@ -678,8 +715,8 @@ html, body {
       </div>
       <div class="streak-block">
         <div class="streak-num" id="streak-num">0</div>
-        <div class="streak-lbl">días racha 🔥</div>
-        <button id="freeze-btn" onclick="useStreakFreeze()" style="display:none;margin-top:4px;padding:3px 8px;background:none;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:10px;cursor:pointer;color:var(--ts)">🧊 Congelar</button>
+        <div class="streak-lbl">días racha</div>
+        <button id="freeze-btn" onclick="useStreakFreeze()" style="display:none;margin-top:4px;padding:3px 8px;background:none;border:0.5px solid var(--bds);border-radius:8px;font-size:var(--fs-xs);cursor:pointer;color:var(--ts)">Congelar</button>
         <div class="week-strip" id="week-strip"></div>
       </div>
     </div>
@@ -698,7 +735,7 @@ html, body {
     </div>
 
     <div class="card">
-      <div id="today-type" style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:12px"></div>
+      <div id="today-type" style="font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--tp);margin-bottom:12px"></div>
       <div class="rings-row">
         <div class="ring-item">
           <svg width="68" height="68" viewBox="0 0 68 68">
@@ -728,38 +765,38 @@ html, body {
         </div>
       </div>
       <div class="agua-row">
-        <span style="font-size:11px;color:var(--tm)">Agua — objetivo 2.5 L</span>
+        <span style="font-size:var(--fs-xs);color:var(--tm)">Agua — objetivo 2.5 L</span>
         <div class="agua-btn-row" id="agua-btns"></div>
       </div>
     </div>
 
     <div id="challenge-card" class="challenge-card">
-      <div class="challenge-lbl">🎯 Desafío semanal</div>
+      <div class="challenge-lbl">Desafío semanal</div>
       <div class="challenge-txt" id="challenge-txt"></div>
       <div class="challenge-prog" id="challenge-prog"></div>
     </div>
 
     <div class="habit-card">
       <div class="habit-row" onclick="openSleepModal()">
-        <div class="habit-icon">😴</div>
+        <div class="habit-icon"></div>
         <div class="habit-title">Sueño</div>
         <div class="habit-val" id="sleep-val">—</div>
       </div>
       <div class="habit-row" onclick="toggleMorningLight()">
-        <div class="habit-icon">☀️</div>
+        <div class="habit-icon"></div>
         <div class="habit-title">Luz matutina (10 min)</div>
         <div class="habit-val" id="morning-val">—</div>
       </div>
     </div>
 
-    <div class="sec" id="fast-sec" onclick="toggleFastCard()" style="cursor:pointer">⏰ Ayuno 16:8 ›</div>
+    <div class="sec" id="fast-sec" onclick="toggleFastCard()" style="cursor:pointer">Ayuno 16:8 ›</div>
     <div id="fast-card" class="fast-card" style="display:none"></div>
 
     <div class="sec" onclick="startBreathing()" style="cursor:pointer;display:flex;justify-content:space-between">Respiración 4-7-8 <span style="color:var(--fill-acc)">▶ Empezar</span></div>
 
-    <button id="notif-btn" onclick="activarNotifs()" style="display:none;width:100%;margin:0 0 10px;padding:11px;background:var(--acc);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer">🔔 Activar recordatorios</button>
+    <button id="notif-btn" onclick="activarNotifs()" style="display:none;width:100%;margin:0 0 10px;padding:11px;background:var(--tp);color:var(--s0);border:none;border-radius:var(--radius);font-size:var(--fs-base);font-weight:var(--fw-semibold);cursor:pointer">Activar recordatorios</button>
 
-    <div class="sec">🔴 Lumbar &amp; Postura — Prioridad</div>
+    <div class="sec priority">Lumbar &amp; Postura — Prioridad</div>
     <div id="r14" class="ex-row" onclick="openEx(14)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_225433_62ef9bfc-384e-48b9-b36d-d96ae9cf68d8_min.webp" alt="Hip Flexor Stretch"><div class="einfo"><div class="ename">Hip Flexor Stretch</div><div class="emeta">45 s c/lado × 3 · Crítico lordosis</div></div><span id="a14" class="earr">›</span></div>
     <div id="r15" class="ex-row" onclick="openEx(15)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_225437_74f5582b-68b3-4932-84b6-0023150e578e_min.webp" alt="Glute Bridge"><div class="einfo"><div class="ename">Glute Bridge</div><div class="emeta">12 reps × 3 · Activa glúteo</div></div><span id="a15" class="earr">›</span></div>
     <div id="r16" class="ex-row" onclick="openEx(16)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260629_103303_dd1e3c91-0724-4cb8-a4c3-06e68dc5cec5_min.webp" alt="Pelvic Tilt en pared"><div class="einfo"><div class="ename">Pelvic Tilt en pared</div><div class="emeta">30 s × 3 · Retroversión pélvica</div></div><span id="a16" class="earr">›</span></div>
@@ -786,7 +823,7 @@ html, body {
   <!-- NUTRICIÓN -->
   <div id="tab-nutricion" class="scroll hidden">
     <div class="card">
-      <div style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:12px">Macros del día</div>
+      <div style="font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--tp);margin-bottom:12px">Macros del día</div>
       <div class="macro-wrap">
         <svg width="88" height="88" viewBox="0 0 88 88" flex-shrink="0" style="flex-shrink:0">
           <circle cx="44" cy="44" r="36" fill="none" stroke="var(--bd)" stroke-width="9"/>
@@ -815,7 +852,6 @@ html, body {
 
     <div class="sec" style="margin-top:8px">Registro fotográfico</div>
     <div style="padding:0 16px">
-      <button id="voice-btn" onclick="startVoiceLog()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;background:var(--s1);color:var(--tp);border:0.5px solid var(--bd);border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:8px;font-family:-apple-system,sans-serif">🎤 Registrar por voz</button>
       <label for="food-input" class="photo-btn" style="cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Foto de plato o etiqueta
@@ -824,7 +860,7 @@ html, body {
       <div id="food-analyzing" style="display:none" class="photo-loading">Analizando imagen</div>
       <div id="food-result" style="display:none"></div>
       <div id="photo-log-list"></div>
-      <button onclick="showWeeklyReport()" style="width:100%;padding:11px;background:var(--s1);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;margin-bottom:4px">Ver informe semanal →</button>
+      <button onclick="showWeeklyReport()" style="width:100%;padding:11px;background:var(--s1);border:none;border-radius:var(--radius);font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--ts);cursor:pointer;margin-bottom:4px">Ver informe semanal →</button>
     </div>
 
     <div class="sec">Suplementos</div>
@@ -847,7 +883,7 @@ html, body {
         <div id="meal-analyzing" class="photo-loading" style="display:none">Analizando imagen</div>
       </div>
       <div style="padding:0 16px 8px">
-        <button onclick="closeMealSheet()" style="width:100%;padding:11px;background:var(--s1);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--ts);cursor:pointer">Cancelar</button>
+        <button onclick="closeMealSheet()" style="width:100%;padding:11px;background:var(--s1);border:none;border-radius:var(--radius);font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--ts);cursor:pointer">Cancelar</button>
       </div>
     </div>
   </div>
@@ -868,7 +904,7 @@ html, body {
   <!-- ENTRENO -->
   <div id="tab-entreno" class="scroll hidden">
     <div class="card">
-      <div style="font-size:13px;font-weight:500;color:var(--tp);margin-bottom:10px">Semana — Split 4 días</div>
+      <div style="font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--tp);margin-bottom:10px">Semana — Split 4 días</div>
       <div class="week-row">
         <div class="day-col"><div class="day-dot" style="background:#e6f1fb;color:#185fa5">P</div><div class="day-num">L</div></div>
         <div class="day-col"><div class="day-dot" style="background:#eaf3de;color:#3b6d11">J</div><div class="day-num">M</div></div>
@@ -878,10 +914,10 @@ html, body {
         <div class="day-col"><div class="day-dot" style="background:var(--s1);color:var(--tm)">—</div><div class="day-num">S</div></div>
         <div class="day-col"><div class="day-dot" style="background:var(--s1);color:var(--tm)">—</div><div class="day-num">D</div></div>
       </div>
-      <div style="font-size:10px;color:var(--tm);margin-top:8px">P = Push · J = Jalar · P = Pierna</div>
+      <div style="font-size:var(--fs-xs);color:var(--tm);margin-top:8px">P = Push · J = Jalar · P = Pierna</div>
     </div>
 
-    <div class="warn-box">⚠ Primeras 8 semanas sin barra. Mancuernas y máquinas únicamente.</div>
+    <div class="warn-box">Primeras 8 semanas sin barra. Mancuernas y máquinas únicamente.</div>
 
     <div class="sec">Lunes — Push</div>
     <div class="card" style="padding:4px 14px">
@@ -947,7 +983,7 @@ html, body {
       </div>
 
       <div class="ov-desc" id="ov-desc"></div>
-      <div id="ov-cnt" style="font-size:11px;color:var(--tm);text-align:center;margin-top:4px"></div>
+      <div id="ov-cnt" style="font-size:var(--fs-xs);color:var(--tm);text-align:center;margin-top:4px"></div>
       <ul class="ov-steps" id="ov-steps"></ul>
       <button class="done-btn" id="done-btn" onclick="markDone()">Marcar como hecho</button>
       <div class="lock-msg" id="lock-msg"></div>
@@ -1327,7 +1363,7 @@ function openMealSheet(slotIdx){
   const existing=getSlotData(slotIdx);
   if(existing){
     const clearBtn=document.createElement('button');
-    clearBtn.style.cssText='display:block;width:calc(100% - 32px);margin:0 16px 8px;padding:10px;background:none;border:0.5px solid var(--bd);border-radius:8px;font-size:13px;color:var(--ts);cursor:pointer;';
+    clearBtn.style.cssText='display:block;width:calc(100% - 32px);margin:0 16px 8px;padding:10px;background:none;border:0.5px solid var(--bd);border-radius:8px;font-size:var(--fs-sm);color:var(--ts);cursor:pointer;';
     clearBtn.textContent='✕ Quitar — '+existing.name;
     clearBtn.onclick=()=>{ localStorage.removeItem(slotKey(slotIdx)); closeMealSheet(); buildNutricion(); updateHome(); };
     opts.appendChild(clearBtn);
@@ -1531,7 +1567,7 @@ async function activarNotifs() {
     const reg = await navigator.serviceWorker.ready;
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
-      btn.textContent = '🔔 Activar recordatorios';
+      btn.textContent = 'Activar recordatorios';
       btn.disabled = false;
       return;
     }
@@ -1547,8 +1583,8 @@ async function activarNotifs() {
         body: JSON.stringify(sub)
       });
     }
-    btn.textContent = '✓ Recordatorios activados';
-    btn.style.background = 'var(--ok, #22c55e)';
+    btn.textContent = 'Recordatorios activados';
+    btn.style.background = 'var(--fill-acc)';
     setTimeout(() => { btn.style.display = 'none'; }, 2500);
   } catch(e) {
     btn.textContent = '🔔 Activar recordatorios';
@@ -1584,7 +1620,7 @@ function renderPhotoLog(){
   const el = document.getElementById('photo-log-list');
   if(!el) return;
   if(!log.length){ el.innerHTML=''; return; }
-  el.innerHTML = '<div class="card" style="margin-bottom:12px;padding:0"><div style="padding:12px 12px 4px;font-size:12px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.04em">Registrado hoy</div>'
+  el.innerHTML = '<div class="card" style="margin-bottom:12px;padding:0"><div style="padding:12px 12px 4px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--tm);text-transform:uppercase;letter-spacing:var(--ls-wide)">Registrado hoy</div>'
     + log.map(e=>`
       <div class="photo-log-entry" style="padding:10px 12px">
         <img class="photo-log-thumb" src="${e.thumb}" alt="comida">
@@ -1656,7 +1692,7 @@ document.getElementById('food-input').addEventListener('change', async function(
   try {
     analyzing.textContent='Comprimiendo imagen…';
     [dataUrl, thumb] = await Promise.all([
-      resizeImage(file, 800, 0.85),
+      resizeImage(file, 1024, 0.88),
       resizeImage(file, 120, 0.7)
     ]);
     analyzing.textContent='Analizando con IA…';
@@ -1681,7 +1717,7 @@ document.getElementById('food-input').addEventListener('change', async function(
   } catch(e) {
     analyzing.style.display='none';
     resultEl.style.display='block';
-    resultEl.innerHTML='<div style="color:var(--t-war);font-size:13px;padding:12px">Error al analizar la imagen. Inténtalo de nuevo.</div>';
+    resultEl.innerHTML='<div style="color:var(--t-war);font-size:var(--fs-sm);padding:12px">Error al analizar la imagen. Inténtalo de nuevo.</div>';
     return;
   }
 
@@ -1689,12 +1725,12 @@ document.getElementById('food-input').addEventListener('change', async function(
 
   if(result.error==='quota_exceeded'){
     resultEl.style.display='block';
-    resultEl.innerHTML='<div style="color:var(--t-war);font-size:13px;padding:12px">⚠️ Cuota diaria de análisis agotada. Se restablece mañana, o contacta para actualizar la clave.</div>';
+    resultEl.innerHTML='<div style="color:var(--t-war);font-size:var(--fs-sm);padding:12px">Cuota diaria de análisis agotada. Se restablece mañana, o contacta para actualizar la clave.</div>';
     return;
   }
   if(result.error==='no_food'){
     resultEl.style.display='block';
-    resultEl.innerHTML='<div style="color:var(--tm);font-size:13px;padding:12px">No se ha detectado comida en la imagen.</div>';
+    resultEl.innerHTML='<div style="color:var(--tm);font-size:var(--fs-sm);padding:12px">No se ha detectado comida en la imagen.</div>';
     return;
   }
 
@@ -1714,18 +1750,18 @@ function renderFoodResult(){
       <div id="pending-foods-list">
         ${_pendingFoods.map((f,i)=>`
           <div class="food-item-row">
-            <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:400">${f.amount||''}</span></span>
+            <span class="food-item-name">${f.name} <span style="color:var(--tm);font-weight:var(--fw-regular)">${f.amount||''}</span></span>
             <span style="display:flex;align-items:center;gap:8px">
               <span class="food-item-macros">${f.kcal} kcal</span>
-              <button onclick="removePendingFood(${i})" style="background:var(--s1);border:none;color:var(--ts);font-size:14px;cursor:pointer;padding:6px 10px;border-radius:6px;line-height:1;min-width:36px;min-height:36px">✕</button>
+              <button onclick="removePendingFood(${i})" style="background:var(--s1);border:none;color:var(--ts);font-size:var(--fs-base);cursor:pointer;padding:6px 10px;border-radius:6px;line-height:1;min-width:36px;min-height:36px">✕</button>
             </span>
           </div>`).join('')}
       </div>
       <div style="display:flex;gap:6px;margin:10px 0 4px">
-        <input id="add-food-input" type="text" placeholder="ej: pollo 150g, yogur griego…" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--s0);color:var(--tp);font-size:16px;font-family:-apple-system,sans-serif">
-        <button id="add-food-btn" onclick="addPendingFood()" style="padding:9px 14px;border-radius:8px;border:none;background:var(--s2);color:var(--tp);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--bd)">+</button>
+        <input id="add-food-input" type="text" placeholder="ej: pollo 150g, yogur griego…" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--s0);color:var(--tp);font-size:var(--fs-md);font-family:-apple-system,sans-serif">
+        <button id="add-food-btn" onclick="addPendingFood()" style="padding:9px 14px;border-radius:8px;border:none;background:var(--s2);color:var(--tp);font-size:var(--fs-base);font-weight:var(--fw-medium);cursor:pointer;border:1px solid var(--bd)">+</button>
       </div>
-      <div id="add-food-loading" style="display:none;font-size:12px;color:var(--tm);padding:4px 0">Calculando…</div>
+      <div id="add-food-loading" style="display:none;font-size:var(--fs-xs);color:var(--tm);padding:4px 0">Calculando…</div>
       <div class="food-total-row">
         <div class="food-total-cell"><div class="food-total-val">${total.kcal}</div><div class="food-total-lbl">kcal</div></div>
         <div class="food-total-cell"><div class="food-total-val" style="color:#639922">${total.protein_g}g</div><div class="food-total-lbl">proteína</div></div>
@@ -1828,7 +1864,7 @@ function showWeeklyReport(){
     const avgKcal=avg('kcal'), avgP=avg('protein_g'), avgC=avg('carbs_g'), avgF=avg('fat_g');
     document.getElementById('report-stats').innerHTML = `
       <div class="card" style="margin-top:16px;padding:0">
-        <div style="padding:12px 12px 4px;font-size:12px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.04em">Media diaria (${tracked.length} días registrados)</div>
+        <div style="padding:12px 12px 4px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--tm);text-transform:uppercase;letter-spacing:var(--ls-wide)">Media diaria (${tracked.length} días registrados)</div>
         <div style="padding:0 12px 8px">
           <div class="report-stat-row"><span class="report-stat-lbl">Calorías</span><span class="report-stat-val ${avgKcal<TARGETS.kcal*0.85?'style="color:#ba7517"':''}">${avgKcal} / ${TARGETS.kcal} kcal</span></div>
           <div class="report-stat-row"><span class="report-stat-lbl">Proteína</span><span class="report-stat-val">${avgP} / ${TARGETS.protein_g}g</span></div>
@@ -1880,7 +1916,7 @@ document.getElementById('meal-photo-input').addEventListener('change', async fun
   const file=this.files[0]; if(!file) return; this.value='';
   const analyzing=document.getElementById('meal-analyzing');
   analyzing.style.display='block';
-  const [dataUrl,thumb]=await Promise.all([resizeImage(file,800,0.85),resizeImage(file,120,0.7)]);
+  const [dataUrl,thumb]=await Promise.all([resizeImage(file,1024,0.88),resizeImage(file,120,0.7)]);
   let result;
   try {
     const r=await fetch('/api/analyze-food',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:dataUrl.split(',')[1],mimeType:'image/jpeg'})});
@@ -1907,13 +1943,13 @@ function isoWeek(d){const t=new Date(d);t.setHours(0,0,0,0);t.setDate(t.getDate(
 function useStreakFreeze(){
   const btn=document.getElementById('freeze-btn');
   const week=isoWeek(new Date())+'-'+new Date().getFullYear();
-  if(localStorage.getItem('streak_freeze_week')===week){btn.textContent='🧊 Usado esta semana';btn.disabled=true;return;}
+  if(localStorage.getItem('streak_freeze_week')===week){btn.textContent='Usado esta semana';btn.disabled=true;return;}
   const streak=parseInt(localStorage.getItem('streak')||'0');
   if(!streak){return;}
   const today=new Date().toDateString();
   localStorage.setItem('streak_last',today);
   localStorage.setItem('streak_freeze_week',week);
-  btn.textContent='🧊 Usado';btn.disabled=true;
+  btn.textContent='Usado';btn.disabled=true;
   updateHome();
 }
 function updateFreezeBtn(){
@@ -1924,7 +1960,7 @@ function updateFreezeBtn(){
   const week=isoWeek(new Date())+'-'+new Date().getFullYear();
   const used=localStorage.getItem('streak_freeze_week')===week;
   btn.style.display='block';
-  btn.textContent=used?'🧊 Usado':'🧊 Congelar';
+  btn.textContent=used?'Usado':'Congelar';
   btn.disabled=used;
 }
 
@@ -1969,33 +2005,6 @@ function updateHabitDisplay(){
   if(mv) mv.textContent=localStorage.getItem('morning_'+todayKey())?'✓ Hecho':'Tap para marcar';
 }
 
-// ── Feature 6: Voice logging ──────────────────────────────────
-function startVoiceLog(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Tu navegador no soporta voz. Usa Safari 15+ o Chrome.');return;}
-  const btn=document.getElementById('voice-btn');
-  const r=new SR();
-  r.lang='es-ES'; r.interimResults=false; r.maxAlternatives=1;
-  r.onstart=()=>{btn.textContent='🔴 Escuchando…';btn.style.background='#fee2e2';btn.style.color='#dc2626';};
-  r.onresult=async(e)=>{
-    const text=e.results[0][0].transcript;
-    btn.textContent='🎤 Analizando: "'+text+'"';
-    try{
-      const resp=await fetch('/api/estimate-food',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-      const data=await resp.json();
-      if(data.name){
-        _pendingFoods.push(data);
-        addFoodHistory(data.name);
-        document.getElementById('food-result').style.display='block';
-        renderFoodResult();
-      }
-    }catch(err){}
-    btn.textContent='🎤 Registrar por voz';btn.style.background='';btn.style.color='';
-  };
-  r.onerror=r.onend=()=>{btn.textContent='🎤 Registrar por voz';btn.style.background='';btn.style.color='';};
-  r.start();
-}
-
 // ── Feature 7: Fasting timer 16:8 ─────────────────────────────
 let fastIv=null;
 function toggleFastCard(){
@@ -2008,7 +2017,7 @@ function renderFastCard(){
   const c=document.getElementById('fast-card');
   const start=localStorage.getItem('fast_start');
   if(!start){
-    c.innerHTML='<div style="font-size:13px;color:var(--tm);margin-bottom:12px">Inicia el ayuno después de tu última comida</div><div class="fast-btn-row"><button class="fast-btn" style="background:var(--tp);color:var(--s0)" onclick="startFast()">Iniciar ayuno</button></div>';
+    c.innerHTML='<div style="font-size:var(--fs-sm);color:var(--tm);margin-bottom:12px">Inicia el ayuno después de tu última comida</div><div class="fast-btn-row"><button class="fast-btn" style="background:var(--tp);color:var(--s0)" onclick="startFast()">Iniciar ayuno</button></div>';
     return;
   }
   const elapsed=(Date.now()-+start)/3600000;
@@ -2058,9 +2067,9 @@ function showBadges(){
   g.innerHTML=BADGES.map((b,i)=>{
     const earned=b.check();
     return '<div style="background:var(--s1);border-radius:12px;padding:12px 8px;text-align:center">'+
-      '<div style="font-size:28px;margin-bottom:4px;'+(earned?'':'filter:grayscale(1);opacity:.4')+'">'+b.emoji+'</div>'+
-      '<div style="font-size:10px;font-weight:700;color:var(--tp)">'+b.name+'</div>'+
-      '<div style="font-size:9px;color:var(--tm);margin-top:2px">'+b.prog()+'</div>'+
+      '<div style="font-size:var(--fs-xl);margin-bottom:4px;'+(earned?'':'filter:grayscale(1);opacity:.4')+'">'+b.emoji+'</div>'+
+      '<div style="font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--tp)">'+b.name+'</div>'+
+      '<div style="font-size:8px;color:var(--tm);margin-top:2px">'+b.prog()+'</div>'+
     '</div>';
   }).join('');
   document.getElementById('badges-overlay').style.display='flex';
@@ -2162,20 +2171,20 @@ window.addEventListener('DOMContentLoaded', ()=>{
 <div id="sleep-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeSleepModal()">
   <div style="background:var(--s0);border-radius:20px 20px 0 0;width:100%;padding:20px 16px calc(20px + env(safe-area-inset-bottom))">
     <div style="width:40px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 16px"></div>
-    <div style="font-size:17px;font-weight:600;color:var(--tp);margin-bottom:16px;text-align:center">Sueño de anoche</div>
+    <div style="font-size:var(--fs-md);font-weight:var(--fw-semibold);color:var(--tp);margin-bottom:16px;text-align:center">Sueño de anoche</div>
     <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:12px;color:var(--tm);margin-bottom:8px">Horas dormidas</div>
+      <div style="font-size:var(--fs-xs);color:var(--tm);margin-bottom:8px">Horas dormidas</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:16px">
-        <button onclick="changeSleepH(-0.5)" style="width:36px;height:36px;border-radius:50%;border:none;background:var(--s1);font-size:20px;cursor:pointer;color:var(--tp);font-family:-apple-system,sans-serif">−</button>
-        <span id="sleep-h-val" style="font-size:36px;font-weight:200;min-width:60px;text-align:center;color:var(--tp)">7.5</span>
-        <button onclick="changeSleepH(0.5)" style="width:36px;height:36px;border-radius:50%;border:none;background:var(--s1);font-size:20px;cursor:pointer;color:var(--tp);font-family:-apple-system,sans-serif">+</button>
+        <button onclick="changeSleepH(-0.5)" style="width:36px;height:36px;border-radius:50%;border:none;background:var(--s1);font-size:var(--fs-lg);cursor:pointer;color:var(--tp);font-family:-apple-system,sans-serif">−</button>
+        <span id="sleep-h-val" style="font-size:var(--fs-2xl);font-weight:var(--fw-light);min-width:60px;text-align:center;color:var(--tp);letter-spacing:var(--ls-tight);font-variant-numeric:tabular-nums">7.5</span>
+        <button onclick="changeSleepH(0.5)" style="width:36px;height:36px;border-radius:50%;border:none;background:var(--s1);font-size:var(--fs-lg);cursor:pointer;color:var(--tp);font-family:-apple-system,sans-serif">+</button>
       </div>
     </div>
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:12px;color:var(--tm);margin-bottom:8px">Calidad</div>
-      <div id="sleep-stars" style="display:flex;gap:12px;justify-content:center;font-size:28px"></div>
+      <div style="font-size:var(--fs-xs);color:var(--tm);margin-bottom:8px">Calidad</div>
+      <div id="sleep-stars" style="display:flex;gap:12px;justify-content:center;font-size:var(--fs-xl)"></div>
     </div>
-    <button onclick="saveSleep()" style="width:100%;padding:14px;background:var(--tp);color:var(--s0);border:none;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer;font-family:-apple-system,sans-serif">Guardar</button>
+    <button onclick="saveSleep()" style="width:100%;padding:14px;background:var(--tp);color:var(--s0);border:none;border-radius:var(--radius);font-size:var(--fs-md);font-weight:var(--fw-medium);cursor:pointer;font-family:-apple-system,sans-serif">Guardar</button>
   </div>
 </div>
 
@@ -2183,19 +2192,19 @@ window.addEventListener('DOMContentLoaded', ()=>{
 <div id="badges-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end" onclick="if(event.target===this)closeBadges()">
   <div style="background:var(--s0);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom))">
     <div style="width:40px;height:4px;background:var(--bd);border-radius:2px;margin:16px auto 12px"></div>
-    <div style="font-size:18px;font-weight:600;color:var(--tp);padding:0 16px 12px">Mis logros</div>
+    <div style="font-size:var(--fs-lg);font-weight:var(--fw-semibold);color:var(--tp);padding:0 16px 12px">Mis logros</div>
     <div id="badges-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px 16px"></div>
-    <div style="padding:0 16px"><button onclick="closeBadges()" style="width:100%;padding:13px;background:var(--s1);border:none;border-radius:var(--radius);font-size:15px;font-weight:500;color:var(--tp);cursor:pointer;font-family:-apple-system,sans-serif">Cerrar</button></div>
+    <div style="padding:0 16px"><button onclick="closeBadges()" style="width:100%;padding:13px;background:var(--s1);border:none;border-radius:var(--radius);font-size:var(--fs-md);font-weight:var(--fw-medium);color:var(--tp);cursor:pointer;font-family:-apple-system,sans-serif">Cerrar</button></div>
   </div>
 </div>
 
 <!-- Breathing modal -->
 <div id="breath-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,10,.85);z-index:300;flex-direction:column;align-items:center;justify-content:center;">
   <div style="text-align:center;color:#fff">
-    <div id="breath-circle" style="width:130px;height:130px;border-radius:50%;background:var(--fill-acc);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;transition:transform 4s ease-in-out">Listo</div>
-    <div id="breath-action" style="font-size:28px;font-weight:200;margin-bottom:8px">Toca para empezar</div>
-    <div id="breath-count" style="font-size:14px;opacity:.7;margin-bottom:32px">4 rondas</div>
-    <button onclick="stopBreathing()" style="padding:12px 32px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:20px;font-size:14px;cursor:pointer;font-family:-apple-system,sans-serif">Salir</button>
+    <div id="breath-circle" style="width:130px;height:130px;border-radius:50%;background:var(--fill-acc);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:var(--fs-base);font-weight:var(--fw-semibold);transition:transform 4s ease-in-out">Listo</div>
+    <div id="breath-action" style="font-size:var(--fs-xl);font-weight:var(--fw-light);margin-bottom:8px">Toca para empezar</div>
+    <div id="breath-count" style="font-size:var(--fs-base);opacity:.7;margin-bottom:32px">4 rondas</div>
+    <button onclick="stopBreathing()" style="padding:12px 32px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:20px;font-size:var(--fs-base);cursor:pointer;font-family:-apple-system,sans-serif">Salir</button>
   </div>
 </div>
 </body>
