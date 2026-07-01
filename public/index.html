@@ -677,6 +677,21 @@ html, body {
 .challenge-lbl{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--t-acc);text-transform:uppercase;letter-spacing:var(--ls-wide);margin-bottom:3px;}
 .challenge-txt{font-size:var(--fs-sm);color:var(--tp);line-height:1.4;}
 .challenge-prog{font-size:var(--fs-sm);color:var(--t-acc);margin-top:4px;font-weight:var(--fw-semibold);font-variant-numeric: tabular-nums;}
+/* Monthly challenges */
+.monthly-card{background:var(--s1);border-left:2px solid var(--fill-acc);border-radius:var(--radius);padding:4px 14px;margin-bottom:12px;}
+.monthly-lbl{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--t-acc);text-transform:uppercase;letter-spacing:var(--ls-wide);margin:10px 0 3px;}
+.monthly-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--bd);}
+.monthly-row:last-child{border-bottom:none;}
+.monthly-info{flex:1;min-width:0;}
+.monthly-title{font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--tp);}
+.monthly-desc{font-size:var(--fs-xs);color:var(--tm);line-height:1.4;margin-top:2px;}
+.monthly-toggle{width:22px;height:22px;border-radius:50%;border:0.5px solid var(--bds);background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-xs);color:transparent;cursor:pointer;transition:all .15s;-webkit-user-select:none;}
+.monthly-toggle.on{background:var(--fill-acc);border-color:var(--fill-acc);color:#fff;}
+.monthly-counter{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.monthly-counter-val{font-size:var(--fs-sm);color:var(--t-acc);font-weight:var(--fw-semibold);font-variant-numeric: tabular-nums;}
+.monthly-plus{padding:6px 10px;border-radius:8px;border:none;background:var(--tp);color:var(--s2);font-size:var(--fs-xs);font-weight:var(--fw-medium);cursor:pointer;font-family:-apple-system,sans-serif;}
+.monthly-plus:active{opacity:.8;}
+.monthly-plus:disabled{background:var(--bg-suc);color:var(--t-suc);opacity:1;}
 /* Fasting card */
 .fast-card{background:var(--s1);border-radius:var(--radius);padding:var(--pad-card);margin-bottom:12px;text-align:center;}
 .fast-num{font-size:var(--fs-2xl);font-weight:var(--fw-light);color:var(--tp);letter-spacing:var(--ls-tight);font-variant-numeric: tabular-nums;}
@@ -774,6 +789,11 @@ html, body {
       <div class="challenge-lbl">Desafío semanal</div>
       <div class="challenge-txt" id="challenge-txt"></div>
       <div class="challenge-prog" id="challenge-prog"></div>
+    </div>
+
+    <div id="monthly-card" class="monthly-card">
+      <div class="monthly-lbl">Reto mensual</div>
+      <div id="monthly-list"></div>
     </div>
 
     <div class="habit-card">
@@ -1267,6 +1287,7 @@ function updateHome(){
   updateFreezeBtn();
   updateHabitDisplay();
   updateWeeklyChallenge();
+  renderMonthlyChallenges();
 
   // Pending list (only non-done daily exercises)
   const pl=document.getElementById('pending-list');
@@ -2091,6 +2112,61 @@ function updateWeeklyChallenge(){
   const prog=Math.min(val,c.target);
   document.getElementById('challenge-txt').textContent=c.text;
   document.getElementById('challenge-prog').textContent=prog+'/'+c.target+' completado'+(prog>=c.target?' ✓':'');
+}
+
+// ── Feature 9b: Monthly challenges ────────────────────────────
+const MONTHLY_CHALLENGES=[
+  {title:'Desconexión digital',desc:'Borra las redes sociales del móvil una semana entera y date el espacio para estar contigo mismo.',type:'toggle'},
+  {title:'Cena a solas',desc:'Ve a un restaurante solo, pide lo que te apetezca y disfrútalo sin mirar el móvil ni una sola vez.',type:'toggle'},
+  {title:'Sin dar explicaciones',desc:'Practica decir que no sin justificarte — solo "no, gracias".',type:'counter',target:3},
+];
+function monthlyKey(i){
+  const now=new Date();
+  return 'monthly_'+i+'_'+now.getFullYear()+'-'+(now.getMonth()+1);
+}
+function renderMonthlyChallenges(){
+  const list=document.getElementById('monthly-list');
+  list.innerHTML='';
+  MONTHLY_CHALLENGES.forEach((c,i)=>{
+    const key=monthlyKey(i);
+    const row=document.createElement('div');
+    row.className='monthly-row';
+    const info=document.createElement('div');
+    info.className='monthly-info';
+    info.innerHTML='<div class="monthly-title">'+c.title+'</div><div class="monthly-desc">'+c.desc+'</div>';
+    row.appendChild(info);
+    if(c.type==='toggle'){
+      const done=localStorage.getItem(key)==='1';
+      const toggle=document.createElement('div');
+      toggle.className='monthly-toggle'+(done?' on':'');
+      toggle.textContent='✓';
+      toggle.onclick=()=>{
+        if(localStorage.getItem(key)==='1') localStorage.removeItem(key);
+        else localStorage.setItem(key,'1');
+        renderMonthlyChallenges();
+      };
+      row.appendChild(toggle);
+    } else if(c.type==='counter'){
+      const val=Math.min(parseInt(localStorage.getItem(key)||'0'),c.target);
+      const wrap=document.createElement('div');
+      wrap.className='monthly-counter';
+      const progTxt=document.createElement('span');
+      progTxt.className='monthly-counter-val';
+      progTxt.textContent=val+'/'+c.target+(val>=c.target?' ✓':'');
+      const plus=document.createElement('button');
+      plus.className='monthly-plus';
+      plus.textContent='+1';
+      if(val>=c.target) plus.disabled=true;
+      plus.onclick=()=>{
+        const cur=Math.min(parseInt(localStorage.getItem(key)||'0'),c.target);
+        if(cur<c.target) localStorage.setItem(key,String(cur+1));
+        renderMonthlyChallenges();
+      };
+      wrap.append(progTxt,plus);
+      row.appendChild(wrap);
+    }
+    list.appendChild(row);
+  });
 }
 
 // ── Feature 10: Food search history ──────────────────────────
