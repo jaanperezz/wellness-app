@@ -2001,12 +2001,7 @@ document.getElementById('meal-photo-input').addEventListener('change', async fun
   if(si!==null){
     const opt={name:'Foto '+(result.foods||[]).map(f=>f.name).join(', '),items:'Analizado por foto',kcal:total.kcal,p:total.protein_g,c:total.carbs_g,f:total.fat_g};
     localStorage.setItem(slotKey(si),JSON.stringify(opt));
-    // Also add to photo log for weekly report
-    const now=new Date();
-    const log=getPhotoLog(now);
-    log.push({foods:result.foods||[],total,thumb,time:now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})});
-    savePhotoLog(now,log);
-    closeMealSheet(); buildNutricion(); updateHome(); renderPhotoLog();
+    closeMealSheet(); buildNutricion(); updateHome();
   }
 });
 
