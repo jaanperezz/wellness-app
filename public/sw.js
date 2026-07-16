@@ -1,4 +1,4 @@
-const CACHE = 'wellness-v6';
+const CACHE = 'wellness-v7';
 const ASSETS = ['/manifest.json'];
 
 self.addEventListener('install', e => {
@@ -111,7 +111,7 @@ self.addEventListener('push', e => {
     };
     // Acción rápida en la pausa activa (Android/desktop; iOS la ignora y abre la app)
     if (data.tag === 'stretch-break') {
-      opts.actions = [{ action: 'break-done', title: '✅ Hecha (90s)' }];
+      opts.actions = [{ action: 'break-done', title: '✅ Pausa hecha' }];
       opts.requireInteraction = true;
     }
     return self.registration.showNotification(n.title, opts);

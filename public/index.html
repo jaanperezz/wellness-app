@@ -1568,6 +1568,10 @@ async function initPush() {
   } catch (e) {}
 }
 
+// Diagnóstico visible: cada paso que falla se cuenta en la línea de estado —
+// se acabó el "no pasa nada al pulsar" sin saber por qué.
+function _pushDiag(msg){ const el=document.getElementById('push-status'); if(el) el.textContent=msg; }
+
 async function activarNotifs() {
   const btn = document.getElementById('notif-btn');
   btn.textContent = 'Activando…';
@@ -1576,28 +1580,45 @@ async function activarNotifs() {
     const reg = await navigator.serviceWorker.ready;
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
+      _pushDiag(perm === 'denied'
+        ? '🔴 Permiso DENEGADO por iOS. Arreglo: Ajustes → Notificaciones → Wellness → Permitir. Si Wellness no aparece ahí: quita la app de la pantalla de inicio, vuelve a añadirla desde Safari y pulsa Activar de nuevo.'
+        : '🟠 Permiso no concedido (has cerrado el diálogo). Pulsa Activar otra vez y dale a Permitir.');
       btn.textContent = 'Activar recordatorios';
       btn.disabled = false;
       return;
     }
     let sub = await reg.pushManager.getSubscription();
     if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
-      });
+      try {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+        });
+      } catch (e) {
+        _pushDiag('🔴 iOS rechazó la suscripción push: ' + (e.message || e.name) + '. Prueba a quitar la app de la pantalla de inicio y re-añadirla.');
+        btn.textContent = 'Activar recordatorios'; btn.disabled = false;
+        return;
+      }
     }
     // SIEMPRE re-enviar (antes se saltaba el POST si ya había suscripción local
     // → el backend se quedaba sin ella para siempre).
-    await fetch('/api/subscribe', {
+    const resp = await fetch('/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sub)
     });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok || !j.ok) {
+      _pushDiag('🔴 El servidor no pudo guardar la suscripción (' + resp.status + '): ' + (j.error || 'error desconocido'));
+      btn.textContent = 'Reintentar activación'; btn.disabled = false;
+      return;
+    }
     btn.textContent = 'Recordatorios activados';
     btn.style.background = 'var(--fill-acc)';
     setTimeout(() => { btn.style.display = 'none'; }, 2500);
+    setTimeout(() => { if (typeof pushStatus === 'function') pushStatus(); }, 1500);
   } catch(e) {
+    _pushDiag('🔴 Error activando: ' + (e.message || e.name));
     btn.textContent = '🔔 Activar recordatorios';
     btn.disabled = false;
   }
@@ -2367,30 +2388,50 @@ function breaksKey(){ return 'breaks_'+todayKey(); }
 function getBreaksDone(){ try{ return JSON.parse(localStorage.getItem(breaksKey())||'[]'); }catch{ return []; } }
 function currentBreakSlot(){ const n=new Date(); return Math.floor((n.getUTCHours()*60+n.getUTCMinutes())/30); }
 
-// ── Estado del modo trabajo (espejo local + servidor como fuente compartida) ──
-let workState={on:false,lastBreak:0};
+// ── Estado del modo trabajo ──
+// Local = fuente primaria (el contador NUNCA se pisa al reabrir la app);
+// servidor = copia para que el push llegue con la app cerrada. Gana el más
+// reciente por updatedAt, y si el servidor va atrás la app lo re-empuja.
+let workState={on:false,lastBreak:0,updatedAt:0};
 try{ workState=JSON.parse(localStorage.getItem('work_state'))||workState; }catch(e){}
+let _workSynced=true;
 
 function saveWork(){ localStorage.setItem('work_state',JSON.stringify(workState)); }
+function _postWork(body){
+  return fetch('/api/work-mode',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.json());
+}
 async function refreshWorkState(){
   try{
     const j=await fetch('/api/work-mode').then(r=>r.json());
-    if(j&&j.state){ workState=j.state; saveWork(); }
-  }catch(e){}
+    const srv=j&&j.state;
+    if(srv&&(srv.updatedAt||0)>=(workState.updatedAt||0)){ workState=srv; saveWork(); _workSynced=true; }
+    else if(srv){
+      // El servidor va atrás (un POST anterior se perdió) → re-empujar lo local.
+      const r=await _postWork({action:'set',state:workState});
+      _workSynced=!!(r&&r.ok);
+    }
+  }catch(e){ _workSynced=false; }
   renderWork();
 }
-function toggleWork(){
+async function toggleWork(){
   const turningOn=!workState.on;
-  workState=turningOn?{on:true,since:Date.now(),lastBreak:Date.now(),lastPush:0}:{on:false,lastBreak:0};
+  const now=Date.now();
+  workState=turningOn?{on:true,since:now,lastBreak:now,lastPush:0,updatedAt:now}:{on:false,since:0,lastBreak:0,lastPush:0,updatedAt:now};
   saveWork(); renderWork();
-  try{ fetch('/api/work-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:turningOn?'on':'off'})}); }catch(e){}
   try{navigator.vibrate&&navigator.vibrate(40);}catch(e){}
+  try{
+    const r=await _postWork({action:turningOn?'on':'off'});
+    if(r&&r.ok&&r.state){ workState={...r.state,updatedAt:Math.max(r.state.updatedAt||0,now)}; saveWork(); _workSynced=true; }
+    else _workSynced=false;
+  }catch(e){ _workSynced=false; }
+  renderWork();
 }
 function renderWork(){
   const st=document.getElementById('work-status'), cnt=document.getElementById('work-count'), btn=document.getElementById('work-btn');
   if(!st) return;
   if(workState.on){
-    st.textContent='🟢 Trabajando';
+    st.textContent=_workSynced?'🟢 Trabajando':'🟡 Trabajando solo local — el aviso con la app cerrada no saldrá';
     btn.textContent='⏹ Parar';
     btn.style.background='var(--s0)'; btn.style.color='var(--tp)'; btn.style.border='0.5px solid var(--bd)';
   } else {
@@ -2490,8 +2531,9 @@ function _finishBreakEx(){
   }
 }
 function _resetCadence(){
-  workState.lastBreak=Date.now(); saveWork(); renderWork();
-  try{ fetch('/api/work-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'break-done'})}); }catch(e){}
+  const now=Date.now();
+  workState.lastBreak=now; workState.updatedAt=now; saveWork(); renderWork();
+  _postWork({action:'break-done'}).catch(()=>{});
 }
 function completeBreak(){
   const arr=getBreaksDone(); const slot=currentBreakSlot();

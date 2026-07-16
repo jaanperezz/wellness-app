@@ -1,4 +1,5 @@
 import webpush from 'web-push';
+import { getSubscription } from './_blob.js';
 
 webpush.setVapidDetails(
   'mailto:janperezgonzalez@gmail.com',
@@ -20,14 +21,14 @@ function hourMadrid() {
 }
 
 export default async function handler(req, res) {
-  const subscription = process.env.PUSH_SUBSCRIPTION;
+  const subscription = await getSubscription().catch(() => null);
   if (!subscription) return res.status(200).json({ ok: false, reason: 'no subscription' });
 
   const msg = SCHEDULE[hourMadrid()];
   if (!msg) return res.status(200).json({ ok: false, reason: 'no message for this hour' });
 
   try {
-    await webpush.sendNotification(JSON.parse(subscription), JSON.stringify(msg));
+    await webpush.sendNotification(subscription, JSON.stringify(msg));
     return res.status(200).json({ ok: true, sent: msg.title });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });

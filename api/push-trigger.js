@@ -1,4 +1,5 @@
 import webpush from 'web-push';
+import { getSubscription } from './_blob.js';
 
 webpush.setVapidDetails(
   'mailto:janperezgonzalez@gmail.com',
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
   if (!process.env.STRETCH_CRON_SECRET || req.query.key !== process.env.STRETCH_CRON_SECRET) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
-  const subscription = process.env.PUSH_SUBSCRIPTION;
+  const subscription = await getSubscription().catch(() => null);
   if (!subscription) return res.status(200).json({ ok: false, reason: 'no subscription' });
 
   const { type } = req.query;
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    await webpush.sendNotification(JSON.parse(subscription), JSON.stringify(payload));
+    await webpush.sendNotification(subscription, JSON.stringify(payload));
     return res.status(200).json({ ok: true, type, slot: Number.isNaN(slot) ? undefined : slot });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });
