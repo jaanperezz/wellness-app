@@ -1546,7 +1546,16 @@ async function initPush() {
   // Show button if permission not yet granted (iOS needs user gesture)
   if (Notification.permission !== 'granted') {
     document.getElementById('notif-btn').style.display = 'block';
+    return;
   }
+  // Auto-reparación: re-envía la suscripción existente en cada apertura.
+  // El servidor ignora el POST si no cambió (unchanged:true) — así el backend
+  // se recupera solo aunque la env de Vercel se haya perdido o borrado.
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) });
+  } catch (e) {}
 }
 
 async function activarNotifs() {
@@ -1567,12 +1576,14 @@ async function activarNotifs() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
       });
-      await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sub)
-      });
     }
+    // SIEMPRE re-enviar (antes se saltaba el POST si ya había suscripción local
+    // → el backend se quedaba sin ella para siempre).
+    await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub)
+    });
     btn.textContent = 'Recordatorios activados';
     btn.style.background = 'var(--fill-acc)';
     setTimeout(() => { btn.style.display = 'none'; }, 2500);

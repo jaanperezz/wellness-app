@@ -14,6 +14,11 @@ export default async function handler(req, res) {
     //    a la segunda suscripción chocaba con la existente y fallaba).
     const list = await fetch(`https://api.vercel.com/v9/projects/${PROJECT}/env`, { headers: H }).then(r => r.json());
     const old = (list.envs || []).find(e => e.key === 'PUSH_SUBSCRIPTION');
+    // Idéntica a la guardada → no tocar nada (la app re-envía en cada apertura;
+    // sin esta guarda cada apertura provocaría un redeploy).
+    if (old && old.value === JSON.stringify(subscription)) {
+      return res.status(200).json({ ok: true, unchanged: true });
+    }
     if (old) {
       await fetch(`https://api.vercel.com/v9/projects/${PROJECT}/env/${old.id}`, { method: 'DELETE', headers: H });
     }
