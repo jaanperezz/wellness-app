@@ -2317,5 +2317,147 @@ window.addEventListener('DOMContentLoaded', ()=>{
     <button onclick="stopBreathing()" style="padding:12px 32px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:20px;font-size:var(--fs-base);cursor:pointer;font-family:-apple-system,sans-serif">Salir</button>
   </div>
 </div>
+
+<!-- Pausa activa obligatoria (cada 30 min, ventana 9-21) -->
+<div id="break-overlay" style="display:none;position:fixed;inset:0;background:var(--s0);z-index:400;flex-direction:column;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))">
+  <div style="font-size:var(--fs-xl);font-weight:var(--fw-semibold);color:var(--tp);margin-bottom:2px">🧘 Pausa activa</div>
+  <div style="font-size:var(--fs-sm);color:var(--tm);margin-bottom:18px">Levántate — 90 segundos. La app se desbloquea al acabar.</div>
+  <div id="break-exercises" style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px"></div>
+  <div style="text-align:center;margin-bottom:18px">
+    <div id="break-count" style="font-size:56px;font-weight:var(--fw-light);color:var(--tp);font-variant-numeric:tabular-nums">90</div>
+    <div style="height:4px;background:var(--s1);border-radius:2px;overflow:hidden;margin-top:6px">
+      <div id="break-bar" style="height:100%;width:0%;background:var(--fill-acc);transition:width 1s linear"></div>
+    </div>
+  </div>
+  <button id="break-done-btn" disabled onclick="markBreakDone()" style="width:100%;padding:15px;background:var(--s1);color:var(--tm);border:none;border-radius:var(--radius);font-size:var(--fs-md);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif">Estirando… espera el contador</button>
+  <button onclick="snoozeBreak()" style="margin-top:10px;padding:10px;background:none;border:none;color:var(--tm);font-size:var(--fs-xs);cursor:pointer;text-decoration:underline;font-family:-apple-system,sans-serif">No puedo ahora — recuérdamelo en 15 min</button>
+</div>
+
+<script>
+// ══════════ Pausa activa obligatoria + estado para el SW (jul-2026) ══════════
+const BREAK_START=9, BREAK_END=21, BREAK_SECONDS=90;
+// Misma rotación determinista que api/stretch-alert.js (índice por franja UTC de 30 min)
+const BREAK_LUMBAR=[{id:14,cue:'45s por lado × 3'},{id:1,cue:'60s · descompresión lumbar'},{id:16,cue:'30s × 3'}];
+const BREAK_ROTATE=[{id:15,cue:'12 reps × 3'},{id:0,cue:'10 reps × 3'},{id:2,cue:'8 reps por lado × 3'}];
+
+function breaksKey(){ return 'breaks_'+todayKey(); }
+function getBreaksDone(){ try{ return JSON.parse(localStorage.getItem(breaksKey())||'[]'); }catch{ return []; } }
+function currentBreakSlot(){ const n=new Date(); return Math.floor((n.getUTCHours()*60+n.getUTCMinutes())/30); }
+function breakDueNow(){
+  const h=new Date().getHours();
+  if(h<BREAK_START||h>=BREAK_END) return false;
+  if(Date.now()<+(localStorage.getItem('break_snooze')||0)) return false;
+  return !getBreaksDone().includes(currentBreakSlot());
+}
+
+let _breakIv=null;
+function showBreakOverlay(){
+  const ov=document.getElementById('break-overlay');
+  if(ov.style.display==='flex') return;
+  const slot=currentBreakSlot();
+  const picks=[BREAK_LUMBAR[slot%3], BREAK_ROTATE[slot%3], BREAK_ROTATE[(slot+1)%3]];
+  const box=document.getElementById('break-exercises');
+  box.innerHTML='';
+  picks.forEach((p,idx)=>{
+    const ex=RUTINA[p.id];
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:12px;background:var(--s1);border-radius:var(--radius);padding:10px 12px;cursor:pointer';
+    d.innerHTML='<img src="'+ex.img+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover" alt="">'+
+      '<div><div style="font-size:var(--fs-base);font-weight:var(--fw-semibold);color:var(--tp)">'+(idx+1)+'. '+ex.name+'</div>'+
+      '<div style="font-size:var(--fs-xs);color:var(--tm)">'+p.cue+'</div></div>';
+    d.onclick=()=>openEx(p.id);
+    box.appendChild(d);
+  });
+  let left=BREAK_SECONDS;
+  const cnt=document.getElementById('break-count'), bar=document.getElementById('break-bar'), btn=document.getElementById('break-done-btn');
+  cnt.textContent=left; bar.style.width='0%';
+  btn.disabled=true; btn.textContent='Estirando… espera el contador'; btn.style.background='var(--s1)'; btn.style.color='var(--tm)';
+  clearInterval(_breakIv);
+  _breakIv=setInterval(()=>{
+    left--;
+    cnt.textContent=left>0?left:'✓';
+    bar.style.width=((BREAK_SECONDS-left)/BREAK_SECONDS*100)+'%';
+    if(left<=0){
+      clearInterval(_breakIv);
+      btn.disabled=false; btn.textContent='✅ Pausa hecha — desbloquear';
+      btn.style.background='var(--fill-acc)'; btn.style.color='var(--s0)';
+      try{navigator.vibrate&&navigator.vibrate([100,50,100]);}catch(e){}
+    }
+  },1000);
+  ov.style.display='flex';
+}
+function markBreakDone(){
+  const arr=getBreaksDone();
+  const slot=currentBreakSlot();
+  if(!arr.includes(slot)) arr.push(slot);
+  localStorage.setItem(breaksKey(),JSON.stringify(arr));
+  localStorage.removeItem('break_snooze');
+  clearInterval(_breakIv);
+  document.getElementById('break-overlay').style.display='none';
+  try{navigator.vibrate&&navigator.vibrate([50,30,100]);}catch(e){}
+  syncSW();
+}
+function snoozeBreak(){
+  localStorage.setItem('break_snooze', Date.now()+15*60000);
+  clearInterval(_breakIv);
+  document.getElementById('break-overlay').style.display='none';
+}
+function checkBreak(){ if(breakDueNow()) showBreakOverlay(); }
+
+// ── Espejo de estado → IndexedDB para que el SW componga repescas reales ──
+function syncSW(){
+  try{
+    const exDone={},exCnt={};
+    RUTINA.forEach((_,i)=>{
+      if(localStorage.getItem('ex_'+i)) exDone[i]=1;
+      const c=localStorage.getItem('ex_cnt_'+i); if(c) exCnt[i]=+c;
+    });
+    const meals=MEAL_SLOTS.map((_,i)=>!!getSlotData(i));
+    const state={date:todayKey(),exDone,exCnt,meals,breaksList:getBreaksDone()};
+    const r=indexedDB.open('wellness-sw',1);
+    r.onupgradeneeded=()=>{ r.result.createObjectStore('kv'); };
+    r.onsuccess=()=>{ try{ r.result.transaction('kv','readwrite').objectStore('kv').put(state,'state'); }catch(e){} };
+  }catch(e){}
+}
+// Fusiona pausas marcadas desde la acción de la notificación (SW → app)
+function mergeSWBreaks(){
+  try{
+    const r=indexedDB.open('wellness-sw',1);
+    r.onupgradeneeded=()=>{ r.result.createObjectStore('kv'); };
+    r.onsuccess=()=>{
+      try{
+        const t=r.result.transaction('kv').objectStore('kv').get('sw-breaks');
+        t.onsuccess=()=>{
+          const rec=t.result;
+          if(!rec||rec.date!==todayKey()||!Array.isArray(rec.slots)) return;
+          const arr=getBreaksDone();
+          let changed=false;
+          rec.slots.forEach(s=>{ if(!arr.includes(s)){ arr.push(s); changed=true; } });
+          if(changed){ localStorage.setItem(breaksKey(),JSON.stringify(arr)); syncSW(); }
+        };
+      }catch(e){}
+    };
+  }catch(e){}
+}
+
+// updateHome corre tras cada cambio de estado relevante → sincroniza el espejo
+const _updateHome_orig=updateHome;
+updateHome=function(){ _updateHome_orig(); syncSW(); };
+
+// ── Deep links de las notificaciones (?ex=N abre ejercicio, ?meal=N abre franja) ──
+(function(){
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.has('ex')){ const i=+q.get('ex'); if(RUTINA[i]) setTimeout(()=>openEx(i),300); }
+    else if(q.has('meal')){ const i=+q.get('meal'); if(MEAL_SLOTS[i]) setTimeout(()=>{ showTab('nutricion',document.querySelectorAll('.tab')[1]); openMealSheet(i); },300); }
+    if(q.has('ex')||q.has('meal')) history.replaceState(null,'','/');
+  }catch(e){}
+})();
+
+mergeSWBreaks();
+syncSW();
+checkBreak();
+setInterval(()=>{ mergeSWBreaks(); checkBreak(); },30000);
+</script>
 </body>
 </html>
