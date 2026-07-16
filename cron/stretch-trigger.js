@@ -5,20 +5,27 @@
  * Auto-filtra por hora Madrid real (Intl) — inmune a CET/CEST, mismo patrón
  * que personal-os.
  *
+ * ⚠️ ESM obligatorio: el package.json del proyecto es "type":"module" — la
+ * versión anterior usaba require() y llevaba crasheando desde el 7-jul sin
+ * enviar nada. Además apuntaba a wellness-app.vercel.app, que NO es nuestro
+ * proyecto (el dominio real es wellness-app-jet-eta.vercel.app).
+ *
  * Dispara (hora Madrid):
  *  - Pausa activa (estiramientos):  :00 y :30 de 9:00-20:30  → /api/stretch-alert
  *  - Repesca pendientes (espalda1º): 12:00 · 16:30 · 20:30    → /api/push-trigger?type=repesca
  *  - Comida franja abierta:          7:00 13:00 17:00 20:00   → /api/push-trigger?type=meal_open
  *  - Comida cierre de franja:        8:30 14:30 18:00 21:00   → /api/push-trigger?type=meal_check
  *
- * Cron: cada 5 minutos → cada evento usa ventana [M, M+5) para disparar UNA vez.
+ * Cron cada 5 min → cada evento usa ventana [M, M+5) para disparar UNA vez.
+ * Test manual: `node stretch-trigger.js repesca` (o stretch · meal_open:1 · meal_check:2)
  */
-'use strict';
+import https from 'node:https';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const https = require('https');
-const fs = require('fs');
-
-const ENV_PATH = require('path').join(__dirname, '..', '.env.cron');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ENV_PATH = path.join(__dirname, '..', '.env.cron');
 const env = {};
 try {
   for (const line of fs.readFileSync(ENV_PATH, 'utf8').split('\n')) {
@@ -27,7 +34,7 @@ try {
   }
 } catch { /* sin .env.cron */ }
 
-const BASE = 'https://wellness-app.vercel.app';
+const BASE = 'https://wellness-app-jet-eta.vercel.app';
 const ACTIVE_START = 9;   // ventana de pausas activas (hora Madrid)
 const ACTIVE_END = 21;
 
@@ -35,8 +42,8 @@ function madrid(part) {
   return Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', [part]: '2-digit', hour12: false }).format(new Date()));
 }
 
-function hit(path, label) {
-  https.get(`${BASE}${path}${path.includes('?') ? '&' : '?'}key=${env.STRETCH_CRON_SECRET}`, (res) => {
+function hit(pathname, label) {
+  https.get(`${BASE}${pathname}${pathname.includes('?') ? '&' : '?'}key=${env.STRETCH_CRON_SECRET}`, (res) => {
     let data = '';
     res.on('data', (c) => { data += c; });
     res.on('end', () => console.log(`[wellness-trigger] ${new Date().toISOString()} ${label} status=${res.statusCode} ${data}`));
@@ -47,6 +54,17 @@ function at(h, targetH, m, targetM) { return h === targetH && m >= targetM && m 
 
 function main() {
   if (!env.STRETCH_CRON_SECRET) { console.error('[wellness-trigger] falta STRETCH_CRON_SECRET en .env.cron'); return; }
+
+  // Modo test: `node stretch-trigger.js <trigger>` fuerza un disparo concreto.
+  const force = process.argv[2];
+  if (force) {
+    if (force === 'stretch') return hit('/api/stretch-alert', 'stretch[TEST]');
+    if (force === 'repesca') return hit('/api/push-trigger?type=repesca', 'repesca[TEST]');
+    const mo = force.match(/^meal_(open|check):([0-3])$/);
+    if (mo) return hit(`/api/push-trigger?type=meal_${mo[1]}&slot=${mo[2]}`, `${force}[TEST]`);
+    return console.error(`[wellness-trigger] trigger desconocido: ${force}`);
+  }
+
   const h = madrid('hour');
   const m = madrid('minute');
 
@@ -66,7 +84,7 @@ function main() {
     hit(`/api/push-trigger?type=meal_open&slot=${opens[h]}`, `meal_open:${opens[h]}`);
   }
 
-  // 4. Comidas — aviso de cierre (solo pesa si no está registrada; lo decide el SW)
+  // 4. Comidas — aviso de cierre (el SW lo silencia si la franja ya está registrada)
   if (at(h, 8, m, 30)) hit('/api/push-trigger?type=meal_check&slot=0', 'meal_check:0');
   if (at(h, 14, m, 30)) hit('/api/push-trigger?type=meal_check&slot=1', 'meal_check:1');
   if (at(h, 18, m, 0)) hit('/api/push-trigger?type=meal_check&slot=2', 'meal_check:2');
