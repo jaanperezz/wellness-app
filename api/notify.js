@@ -14,13 +14,16 @@ const SCHEDULE = {
   22: { title: '💊 Suplementos nocturnos', body: 'Magnesio bisglicinato 300 mg antes de dormir.' }
 };
 
+// Hora Madrid real (no offset fijo) — antes era (hourUTC+2)%24, que se rompía 1h en invierno (CET vs CEST).
+function hourMadrid() {
+  return Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', hour12: false }).format(new Date()));
+}
+
 export default async function handler(req, res) {
   const subscription = process.env.PUSH_SUBSCRIPTION;
   if (!subscription) return res.status(200).json({ ok: false, reason: 'no subscription' });
 
-  const hourUTC = new Date().getUTCHours();
-  const hourSpain = (hourUTC + 2) % 24;
-  const msg = SCHEDULE[hourSpain];
+  const msg = SCHEDULE[hourMadrid()];
   if (!msg) return res.status(200).json({ ok: false, reason: 'no message for this hour' });
 
   try {

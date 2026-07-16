@@ -30,17 +30,19 @@ self.addEventListener('push', e => {
       vibrate: [200, 100, 200],
       tag: data.tag || 'wellness',
       renotify: true,
-      data: { url: '/' }
+      data: { url: data.url || '/' }
     })
   );
 });
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
+  const url = e.notification.data?.url || '/';
   e.waitUntil(
     clients.matchAll({ type: 'window' }).then(cs => {
-      if (cs.length) return cs[0].focus();
-      return clients.openWindow('/');
+      const existing = cs.find(c => 'focus' in c);
+      if (existing) { existing.navigate(url); return existing.focus(); }
+      return clients.openWindow(url);
     })
   );
 });
