@@ -815,6 +815,16 @@ html, body {
     <div class="sec" onclick="startBreathing()" style="cursor:pointer;display:flex;justify-content:space-between">Respiración 4-7-8 <span style="color:var(--fill-acc)">▶ Empezar</span></div>
 
     <button id="notif-btn" onclick="activarNotifs()" style="display:none;width:100%;margin:0 0 10px;padding:11px;background:var(--tp);color:var(--s0);border:none;border-radius:var(--radius);font-size:var(--fs-base);font-weight:var(--fw-semibold);cursor:pointer">Activar recordatorios</button>
+    <div id="push-status" style="font-size:var(--fs-xs);color:var(--tm);text-align:center;margin:0 0 10px">🔔 comprobando notificaciones…</div>
+
+    <div class="sec">Modo trabajo</div>
+    <div id="work-card" style="display:flex;align-items:center;gap:12px;background:var(--s1);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
+      <div style="flex:1">
+        <div id="work-status" style="font-size:var(--fs-base);font-weight:var(--fw-semibold);color:var(--tp)">Desactivado</div>
+        <div id="work-count" style="font-size:var(--fs-xs);color:var(--tm);font-variant-numeric:tabular-nums">Actívalo al sentarte a trabajar</div>
+      </div>
+      <button id="work-btn" onclick="toggleWork()" style="padding:11px 16px;background:var(--tp);color:var(--s0);border:none;border-radius:var(--radius);font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif;white-space:nowrap">🖥️ Activar</button>
+    </div>
 
     <div class="sec priority">Lumbar &amp; Postura — Prioridad</div>
     <div id="r14" class="ex-row" onclick="openEx(14)"><img class="ethumb" src="https://d8j0ntlcm91z4.cloudfront.net/user_39OfQAm7pHa5F4nleqclsXW01k0/hf_20260628_225433_62ef9bfc-384e-48b9-b36d-d96ae9cf68d8_min.webp" alt="Hip Flexor Stretch"><div class="einfo"><div class="ename">Hip Flexor Stretch</div><div class="emeta">45 s c/lado × 3 · Crítico lordosis</div></div><span id="a14" class="earr">›</span></div>
@@ -2329,91 +2339,187 @@ window.addEventListener('DOMContentLoaded', ()=>{
   </div>
 </div>
 
-<!-- Pausa activa obligatoria (cada 30 min, ventana 9-21) -->
+<!-- Pausa activa — modo trabajo (rediseño 16-jul, feedback de Jan) -->
 <div id="break-overlay" style="display:none;position:fixed;inset:0;background:var(--s0);z-index:400;flex-direction:column;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))">
-  <div style="font-size:var(--fs-xl);font-weight:var(--fw-semibold);color:var(--tp);margin-bottom:2px">🧘 Pausa activa</div>
-  <div style="font-size:var(--fs-sm);color:var(--tm);margin-bottom:18px">Levántate — 90 segundos. La app se desbloquea al acabar.</div>
-  <div id="break-exercises" style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px"></div>
-  <div style="text-align:center;margin-bottom:18px">
-    <div id="break-count" style="font-size:56px;font-weight:var(--fw-light);color:var(--tp);font-variant-numeric:tabular-nums">90</div>
-    <div style="height:4px;background:var(--s1);border-radius:2px;overflow:hidden;margin-top:6px">
-      <div id="break-bar" style="height:100%;width:0%;background:var(--fill-acc);transition:width 1s linear"></div>
-    </div>
+  <div style="font-size:var(--fs-xl);font-weight:var(--fw-semibold);color:var(--tp);margin-bottom:2px">🧘 Levántate — pausa activa</div>
+  <div style="font-size:var(--fs-sm);color:var(--tm);margin-bottom:18px">30 min sentado. Tres estiramientos y sigues — toca uno para empezar.</div>
+  <div id="break-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px"></div>
+  <div id="break-runner" style="display:none;background:var(--s1);border-radius:var(--radius);padding:18px;text-align:center;margin-bottom:18px">
+    <img id="brk-img" src="" alt="" style="width:96px;height:96px;border-radius:14px;object-fit:cover;margin:0 auto 10px;display:block">
+    <div id="brk-name" style="font-size:var(--fs-md);font-weight:var(--fw-semibold);color:var(--tp)"></div>
+    <div id="brk-serie" style="font-size:var(--fs-xs);color:var(--tm);margin:2px 0 10px"></div>
+    <div id="brk-count" style="font-size:52px;font-weight:var(--fw-light);color:var(--tp);font-variant-numeric:tabular-nums">—</div>
+    <button id="brk-next" onclick="breakNextSet()" style="display:none;width:100%;margin-top:10px;padding:13px;background:var(--fill-acc);color:var(--s0);border:none;border-radius:var(--radius);font-size:var(--fs-base);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif">Siguiente serie ▶</button>
   </div>
-  <button id="break-done-btn" disabled onclick="markBreakDone()" style="width:100%;padding:15px;background:var(--s1);color:var(--tm);border:none;border-radius:var(--radius);font-size:var(--fs-md);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif">Estirando… espera el contador</button>
-  <button onclick="snoozeBreak()" style="margin-top:10px;padding:10px;background:none;border:none;color:var(--tm);font-size:var(--fs-xs);cursor:pointer;text-decoration:underline;font-family:-apple-system,sans-serif">No puedo ahora — recuérdamelo en 15 min</button>
+  <button id="break-finish" onclick="completeBreak()" disabled style="width:100%;padding:15px;background:var(--s1);color:var(--tm);border:none;border-radius:var(--radius);font-size:var(--fs-md);font-weight:var(--fw-semibold);cursor:pointer;font-family:-apple-system,sans-serif">Completa los 3 estiramientos</button>
+  <button onclick="skipBreak()" style="margin-top:10px;padding:10px;background:none;border:none;color:var(--tm);font-size:var(--fs-xs);cursor:pointer;text-decoration:underline;font-family:-apple-system,sans-serif">Saltar esta pausa — quedará como pendiente</button>
 </div>
 
 <script>
-// ══════════ Pausa activa obligatoria + estado para el SW (jul-2026) ══════════
-const BREAK_START=9, BREAK_END=21, BREAK_SECONDS=90;
-// Misma rotación determinista que api/stretch-alert.js (índice por franja UTC de 30 min)
+// ══════ Modo trabajo + pausa activa v2 (16-jul, según feedback de Jan) ══════
+// Jan activa el modo al sentarse → cuenta atrás de 30 min → aviso + 3
+// estiramientos con el timer REAL de cada ejercicio (nada de esperas fijas).
+const WORK_MS = 30*60*1000;
 const BREAK_LUMBAR=[{id:14,cue:'45s por lado × 3'},{id:1,cue:'60s · descompresión lumbar'},{id:16,cue:'30s × 3'}];
 const BREAK_ROTATE=[{id:15,cue:'12 reps × 3'},{id:0,cue:'10 reps × 3'},{id:2,cue:'8 reps por lado × 3'}];
 
 function breaksKey(){ return 'breaks_'+todayKey(); }
 function getBreaksDone(){ try{ return JSON.parse(localStorage.getItem(breaksKey())||'[]'); }catch{ return []; } }
 function currentBreakSlot(){ const n=new Date(); return Math.floor((n.getUTCHours()*60+n.getUTCMinutes())/30); }
-function breakDueNow(){
-  const h=new Date().getHours();
-  if(h<BREAK_START||h>=BREAK_END) return false;
-  if(Date.now()<+(localStorage.getItem('break_snooze')||0)) return false;
-  return !getBreaksDone().includes(currentBreakSlot());
-}
 
-let _breakIv=null;
-function showBreakOverlay(){
+// ── Estado del modo trabajo (espejo local + servidor como fuente compartida) ──
+let workState={on:false,lastBreak:0};
+try{ workState=JSON.parse(localStorage.getItem('work_state'))||workState; }catch(e){}
+
+function saveWork(){ localStorage.setItem('work_state',JSON.stringify(workState)); }
+async function refreshWorkState(){
+  try{
+    const j=await fetch('/api/work-mode').then(r=>r.json());
+    if(j&&j.state){ workState=j.state; saveWork(); }
+  }catch(e){}
+  renderWork();
+}
+function toggleWork(){
+  const turningOn=!workState.on;
+  workState=turningOn?{on:true,since:Date.now(),lastBreak:Date.now(),lastPush:0}:{on:false,lastBreak:0};
+  saveWork(); renderWork();
+  try{ fetch('/api/work-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:turningOn?'on':'off'})}); }catch(e){}
+  try{navigator.vibrate&&navigator.vibrate(40);}catch(e){}
+}
+function renderWork(){
+  const st=document.getElementById('work-status'), cnt=document.getElementById('work-count'), btn=document.getElementById('work-btn');
+  if(!st) return;
+  if(workState.on){
+    st.textContent='🟢 Trabajando';
+    btn.textContent='⏹ Parar';
+    btn.style.background='var(--s0)'; btn.style.color='var(--tp)'; btn.style.border='0.5px solid var(--bd)';
+  } else {
+    st.textContent='Desactivado';
+    cnt.textContent='Actívalo al sentarte a trabajar';
+    btn.textContent='🖥️ Activar';
+    btn.style.background='var(--tp)'; btn.style.color='var(--s0)'; btn.style.border='none';
+  }
+}
+function workTick(){
+  if(!workState.on) return;
+  const left=(workState.lastBreak||workState.since)+WORK_MS-Date.now();
+  const cnt=document.getElementById('work-count');
+  if(left>0){
+    const mm=Math.floor(left/60000), ss=Math.floor((left%60000)/1000);
+    if(cnt) cnt.textContent='Próxima pausa en '+mm+':'+(ss<10?'0':'')+ss;
+  } else {
+    if(cnt) cnt.textContent='¡Toca pausa!';
+    if(document.getElementById('break-overlay').style.display!=='flex') openBreak();
+  }
+}
+setInterval(workTick,1000);
+
+// ── Pausa: 3 ejercicios, cada uno con SU timer (series × duración real) ──
+let _trio=[], _trioDone=[], _runIdx=null, _runSet=0, _runIv=null;
+
+function openBreak(){
   const ov=document.getElementById('break-overlay');
   if(ov.style.display==='flex') return;
   const slot=currentBreakSlot();
-  const picks=[BREAK_LUMBAR[slot%3], BREAK_ROTATE[slot%3], BREAK_ROTATE[(slot+1)%3]];
-  const box=document.getElementById('break-exercises');
+  _trio=[BREAK_LUMBAR[slot%3], BREAK_ROTATE[slot%3], BREAK_ROTATE[(slot+1)%3]];
+  _trioDone=[false,false,false]; _runIdx=null;
+  document.getElementById('break-runner').style.display='none';
+  renderBreakList();
+  const fin=document.getElementById('break-finish');
+  fin.disabled=true; fin.textContent='Completa los 3 estiramientos';
+  fin.style.background='var(--s1)'; fin.style.color='var(--tm)';
+  ov.style.display='flex';
+  try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
+}
+function renderBreakList(){
+  const box=document.getElementById('break-list');
   box.innerHTML='';
-  picks.forEach((p,idx)=>{
+  _trio.forEach((p,i)=>{
     const ex=RUTINA[p.id];
+    const done=_trioDone[i];
     const d=document.createElement('div');
-    d.style.cssText='display:flex;align-items:center;gap:12px;background:var(--s1);border-radius:var(--radius);padding:10px 12px;cursor:pointer';
+    d.style.cssText='display:flex;align-items:center;gap:12px;background:var(--s1);border-radius:var(--radius);padding:10px 12px;cursor:pointer'+(done?';opacity:.55':'')+(_runIdx===i?';outline:1.5px solid var(--fill-acc)':'');
     d.innerHTML='<img src="'+ex.img+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover" alt="">'+
-      '<div><div style="font-size:var(--fs-base);font-weight:var(--fw-semibold);color:var(--tp)">'+(idx+1)+'. '+ex.name+'</div>'+
-      '<div style="font-size:var(--fs-xs);color:var(--tm)">'+p.cue+'</div></div>';
-    d.onclick=()=>openEx(p.id);
+      '<div style="flex:1"><div style="font-size:var(--fs-base);font-weight:var(--fw-semibold);color:var(--tp)">'+(i+1)+'. '+ex.name+'</div>'+
+      '<div style="font-size:var(--fs-xs);color:var(--tm)">'+p.cue+'</div></div>'+
+      '<span style="font-size:var(--fs-lg)">'+(done?'✅':'▶')+'</span>';
+    if(!done) d.onclick=()=>startBreakEx(i);
     box.appendChild(d);
   });
-  let left=BREAK_SECONDS;
-  const cnt=document.getElementById('break-count'), bar=document.getElementById('break-bar'), btn=document.getElementById('break-done-btn');
-  cnt.textContent=left; bar.style.width='0%';
-  btn.disabled=true; btn.textContent='Estirando… espera el contador'; btn.style.background='var(--s1)'; btn.style.color='var(--tm)';
-  clearInterval(_breakIv);
-  _breakIv=setInterval(()=>{
+}
+function _setSeconds(ex){ return ex.timed ? ex.duration : 30; }  // reps → 30s/serie
+function startBreakEx(i){
+  _runIdx=i; _runSet=1;
+  const ex=RUTINA[_trio[i].id];
+  document.getElementById('brk-img').src=ex.img;
+  document.getElementById('brk-name').textContent=ex.name;
+  document.getElementById('break-runner').style.display='block';
+  renderBreakList();
+  _startSet();
+}
+function _startSet(){
+  const ex=RUTINA[_trio[_runIdx].id];
+  const total=ex.sets||1;
+  document.getElementById('brk-serie').textContent='Serie '+_runSet+' de '+total+(ex.reps?(' · '+ex.reps+' reps'):'');
+  document.getElementById('brk-next').style.display='none';
+  let left=_setSeconds(ex);
+  const cnt=document.getElementById('brk-count');
+  cnt.textContent=left;
+  clearInterval(_runIv);
+  _runIv=setInterval(()=>{
     left--;
     cnt.textContent=left>0?left:'✓';
-    bar.style.width=((BREAK_SECONDS-left)/BREAK_SECONDS*100)+'%';
     if(left<=0){
-      clearInterval(_breakIv);
-      btn.disabled=false; btn.textContent='✅ Pausa hecha — desbloquear';
-      btn.style.background='var(--fill-acc)'; btn.style.color='var(--s0)';
+      clearInterval(_runIv);
+      try{playBeep&&playBeep();}catch(e){}
       try{navigator.vibrate&&navigator.vibrate([100,50,100]);}catch(e){}
+      if(_runSet<(ex.sets||1)){ document.getElementById('brk-next').style.display='block'; }
+      else _finishBreakEx();
     }
   },1000);
-  ov.style.display='flex';
 }
-function markBreakDone(){
-  const arr=getBreaksDone();
-  const slot=currentBreakSlot();
+function breakNextSet(){ _runSet++; _startSet(); }
+function _finishBreakEx(){
+  _trioDone[_runIdx]=true; _runIdx=null;
+  document.getElementById('break-runner').style.display='none';
+  renderBreakList();
+  if(_trioDone.every(Boolean)){
+    const fin=document.getElementById('break-finish');
+    fin.disabled=false; fin.textContent='✅ Pausa completada — seguir trabajando';
+    fin.style.background='var(--fill-acc)'; fin.style.color='var(--s0)';
+  }
+}
+function _resetCadence(){
+  workState.lastBreak=Date.now(); saveWork(); renderWork();
+  try{ fetch('/api/work-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'break-done'})}); }catch(e){}
+}
+function completeBreak(){
+  const arr=getBreaksDone(); const slot=currentBreakSlot();
   if(!arr.includes(slot)) arr.push(slot);
   localStorage.setItem(breaksKey(),JSON.stringify(arr));
-  localStorage.removeItem('break_snooze');
-  clearInterval(_breakIv);
+  clearInterval(_runIv);
   document.getElementById('break-overlay').style.display='none';
+  _resetCadence(); syncSW();
   try{navigator.vibrate&&navigator.vibrate([50,30,100]);}catch(e){}
-  syncSW();
 }
-function snoozeBreak(){
-  localStorage.setItem('break_snooze', Date.now()+15*60000);
-  clearInterval(_breakIv);
+function skipBreak(){
+  clearInterval(_runIv);
   document.getElementById('break-overlay').style.display='none';
+  _resetCadence();  // reinicia los 30 min pero NO cuenta como hecha → repesca
 }
-function checkBreak(){ if(breakDueNow()) showBreakOverlay(); }
+
+// ── Estado real de las notificaciones (sin adivinar) ──
+async function pushStatus(){
+  const el=document.getElementById('push-status');
+  try{
+    const j=await fetch('/api/push-status').then(r=>r.json());
+    if(j.subscribed){ el.textContent='🟢 Notificaciones conectadas'; }
+    else{
+      el.textContent='🔴 Notificaciones SIN conectar — toca "Activar recordatorios"';
+      document.getElementById('notif-btn').style.display='block';
+    }
+  }catch(e){ el.textContent='🔔 Sin conexión para comprobar notificaciones'; }
+}
 
 // ── Espejo de estado → IndexedDB para que el SW componga repescas reales ──
 function syncSW(){
@@ -2455,20 +2561,26 @@ function mergeSWBreaks(){
 const _updateHome_orig=updateHome;
 updateHome=function(){ _updateHome_orig(); syncSW(); };
 
-// ── Deep links de las notificaciones (?ex=N abre ejercicio, ?meal=N abre franja) ──
+// ── Deep links de notificaciones (?break=1 abre la pausa, ?ex=N, ?meal=N) ──
 (function(){
   try{
     const q=new URLSearchParams(location.search);
-    if(q.has('ex')){ const i=+q.get('ex'); if(RUTINA[i]) setTimeout(()=>openEx(i),300); }
+    if(q.has('break')) setTimeout(()=>openBreak(),300);
+    else if(q.has('ex')){ const i=+q.get('ex'); if(RUTINA[i]) setTimeout(()=>openEx(i),300); }
     else if(q.has('meal')){ const i=+q.get('meal'); if(MEAL_SLOTS[i]) setTimeout(()=>{ showTab('nutricion',document.querySelectorAll('.tab')[1]); openMealSheet(i); },300); }
-    if(q.has('ex')||q.has('meal')) history.replaceState(null,'','/');
+    if(q.has('ex')||q.has('meal')||q.has('break')) history.replaceState(null,'','/');
   }catch(e){}
 })();
 
+// Al volver la app a primer plano: re-sincronizar estado servidor y fusiones
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ refreshWorkState(); mergeSWBreaks(); pushStatus(); } });
+
 mergeSWBreaks();
 syncSW();
-checkBreak();
-setInterval(()=>{ mergeSWBreaks(); checkBreak(); },30000);
+renderWork();
+refreshWorkState();
+pushStatus();
+setInterval(mergeSWBreaks,30000);
 </script>
 </body>
 </html>

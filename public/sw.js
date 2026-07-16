@@ -1,4 +1,4 @@
-const CACHE = 'wellness-v5';
+const CACHE = 'wellness-v6';
 const ASSETS = ['/manifest.json'];
 
 self.addEventListener('install', e => {
@@ -71,18 +71,15 @@ async function composeRepesca() {
   // 1º ESPALDA — ejercicios lumbares del día sin hacer
   const pendLumbar = LUMBAR_IDS.filter(id => !st.exDone || !st.exDone[id]).map(id => EX_NAMES[id]);
   if (pendLumbar.length) parts.push('🎯 Espalda: ' + pendLumbar.slice(0, 3).join(' · ') + (pendLumbar.length > 3 ? ` (+${pendLumbar.length - 3})` : ''));
-  // 2º pausas activas — esperadas hasta ahora vs hechas
+  // 2º comidas con franja ya cerrada y sin registrar
   const now = nowMadridMinutes();
-  const winStart = BREAK_START * 60;
-  const expected = now <= winStart ? 0 : Math.min(Math.floor((Math.min(now, BREAK_END * 60) - winStart) / 30) + 1, (BREAK_END - BREAK_START) * 2);
-  const done = (st.breaksList || []).length;
-  const pendBreaks = Math.max(0, expected - done);
-  if (pendBreaks > 0) parts.push(`🧘 ${pendBreaks} pausa${pendBreaks > 1 ? 's' : ''} activa${pendBreaks > 1 ? 's' : ''} sin hacer`);
-  // 3º comidas con franja ya cerrada y sin registrar
   const missedMeals = MEAL_NAMES.filter((_, i) => now >= MEAL_WINDOWS[i][1] && !(st.meals && st.meals[i]));
   if (missedMeals.length) parts.push('🍽️ Sin registrar: ' + missedMeals.join(', '));
+  // 3º refuerzo: pausas de trabajo hechas hoy
+  const done = (st.breaksList || []).length;
+  if (done > 0) parts.push(`🧘 ${done} pausa${done > 1 ? 's' : ''} activa${done > 1 ? 's' : ''} hecha${done > 1 ? 's' : ''} hoy`);
 
-  if (!parts.length) return { title: '✅ Al día', body: 'Espalda, pausas y comidas — todo hecho. Sigue así.' };
+  if (!pendLumbar.length && !missedMeals.length) return { title: '✅ Al día', body: 'Espalda y comidas cubiertas' + (done ? ` · ${done} pausas hechas` : '') + '. Sigue así.' };
   return { title: '📋 Te queda hoy', body: parts.join('\n') };
 }
 
@@ -124,7 +121,8 @@ self.addEventListener('push', e => {
 self.addEventListener('notificationclick', e => {
   e.notification.close();
 
-  // "✅ Hecha" en la notificación de pausa → registrar sin abrir la app.
+  // "✅ Hecha" en la notificación de pausa → registrar sin abrir la app
+  // y resetear la cadencia de 30 min en el servidor.
   if (e.action === 'break-done') {
     e.waitUntil((async () => {
       const now = new Date();
@@ -134,6 +132,9 @@ self.addEventListener('notificationclick', e => {
       if (rec.date !== day) { rec.date = day; rec.slots = []; }
       if (!rec.slots.includes(slot)) rec.slots.push(slot);
       await idbSet('sw-breaks', rec);
+      try {
+        await fetch('/api/work-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'break-done' }) });
+      } catch (err) {}
     })());
     return;
   }

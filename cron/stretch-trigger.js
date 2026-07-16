@@ -35,8 +35,8 @@ try {
 } catch { /* sin .env.cron */ }
 
 const BASE = 'https://wellness-app-jet-eta.vercel.app';
-const ACTIVE_START = 9;   // ventana de pausas activas (hora Madrid)
-const ACTIVE_END = 21;
+const ACTIVE_START = 7;   // ventana de pings de pausa (hora Madrid) — el endpoint decide
+const ACTIVE_END = 22;
 
 function madrid(part) {
   return Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', [part]: '2-digit', hour12: false }).format(new Date()));
@@ -68,8 +68,9 @@ function main() {
   const h = madrid('hour');
   const m = madrid('minute');
 
-  // 1. Pausa activa cada 30 min en ventana 9-21
-  if (h >= ACTIVE_START && h < ACTIVE_END && (m < 5 || (m >= 30 && m < 35))) {
+  // 1. Pausa activa — ping cada 5 min; el endpoint decide según el "modo trabajo"
+  //    de Jan (cadencia real: 30 min desde su última pausa, no reloj de pared).
+  if (h >= ACTIVE_START && h < ACTIVE_END) {
     hit('/api/stretch-alert', 'stretch');
   }
 
